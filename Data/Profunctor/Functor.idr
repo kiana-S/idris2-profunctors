@@ -23,7 +23,6 @@ interface ProfunctorFunctor t =>
 
 public export
 interface (ProfunctorFunctor f, ProfunctorFunctor u) =>
-    ProfunctorAdjunction (0 f : (Type -> Type -> Type) -> Type -> Type -> Type)
-                         (0 u : (Type -> Type -> Type) -> Type -> Type -> Type) | f, u where
+    ProfunctorAdjunction (0 f, u : (Type -> Type -> Type) -> Type -> Type -> Type) | f, u where
   prounit   : Profunctor p => p :-> u (f p)
   procounit : Profunctor p => f (u p) :-> p
