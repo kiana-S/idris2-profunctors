@@ -102,43 +102,42 @@ Functor f => Profunctor (Costar f) where
 
 public export
 record Tagged (a : k) b where
-  constructor MkTagged
+  constructor Tag
   getTagged : b
 
 public export
 retag : Tagged a c -> Tagged b c
-retag (MkTagged x) = MkTagged x
+retag (Tag x) = Tag x
 
 export
 Functor (Tagged a) where
-  map f (MkTagged x) = MkTagged (f x)
+  map f (Tag x) = Tag (f x)
 
 export
 Applicative (Tagged a) where
-  pure = MkTagged
-  MkTagged f <*> MkTagged x = MkTagged (f x)
+  pure = Tag
+  Tag f <*> Tag x = Tag (f x)
 
 export
 Monad (Tagged a) where
   join = getTagged
-  MkTagged x >>= f = f x
+  Tag x >>= f = f x
 
 export
 Foldable (Tagged a) where
-  foldr f x (MkTagged y) = f y x
-  foldl f x (MkTagged y) = f x y
+  foldr f x (Tag y) = f y x
+  foldl f x (Tag y) = f x y
   null = const False
-  foldlM f x (MkTagged y) = f x y
-  toList (MkTagged x) = [x]
-  foldMap f (MkTagged x) = f x
+  foldlM f x (Tag y) = f x y
+  toList (Tag x) = [x]
+  foldMap f (Tag x) = f x
 
 export
 Traversable (Tagged a) where
-  traverse f (MkTagged x) = map MkTagged (f x)
+  traverse f (Tag x) = map Tag (f x)
 
 export
 Profunctor Tagged where
-  dimap _ f (MkTagged x) = MkTagged (f x)
+  dimap _ f (Tag x) = Tag (f x)
   lmap = const retag
-  rmap f (MkTagged x) = MkTagged (f x)
-
+  rmap f (Tag x) = Tag (f x)
