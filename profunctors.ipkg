@@ -1,0 +1,10 @@
+package profunctors
+version = 0.0.0
+
+authors = "Kiana Sheibani"
+license = "MIT"
+
+readme = "README.md"
+
+modules = Data.Tensor,
+          Data.Profunctor
