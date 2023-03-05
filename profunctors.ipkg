@@ -6,5 +6,4 @@ license = "MIT"
 
 readme = "README.md"
 
-modules = Data.Tensor,
-          Data.Profunctor
+modules = Data.Profunctor.Types
