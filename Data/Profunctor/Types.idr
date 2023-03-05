@@ -44,7 +44,7 @@ Functor f => Profunctor (Kleislimorphism f) where
 -- Examples of profunctors
 
 public export
-record Star (f : k -> Type) a (b : k) where
+record Star {0 k : Type} (f : k -> Type) a (b : k) where
   constructor MkStar
   applyStar : a -> f b
 
@@ -76,7 +76,7 @@ Functor f => Profunctor (Star f) where
 
 
 public export
-record Costar (f : k -> Type) (a : k) b where
+record Costar {0 k : Type} (f : k -> Type) (a : k) b where
   constructor MkCostar
   applyCostar : f a -> b
 
@@ -101,7 +101,7 @@ Functor f => Profunctor (Costar f) where
 
 
 public export
-record Tagged (a : k) b where
+record Tagged {0 k : Type} (a : k) b where
   constructor Tag
   getTagged : b
 
