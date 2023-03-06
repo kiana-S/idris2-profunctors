@@ -72,3 +72,61 @@ ungentambara f x = dimap unitr.bwd unitr.fwd $ getTambara $ f x
 public export
 Tambara : (p : Type -> Type -> Type) -> Type
 Tambara = GenTambara Pair
+
+-- Pastro
+
+public export
+data GenPastro : (ten, p : Type -> Type -> Type) -> Type -> Type -> Type where
+  MkPastro : (y `ten` z -> b) -> p x y -> (a -> x `ten` z) -> GenPastro ten p a b
+
+
+export
+Profunctor (GenPastro ten p) where
+  dimap f g (MkPastro l m r) = MkPastro (g . l) m (r . f)
+  lmap f (MkPastro l m r) = MkPastro l m (r . f)
+  rmap g (MkPastro l m r) = MkPastro (g . l) m r
+
+export
+ProfunctorFunctor (GenPastro ten) where
+  promap f (MkPastro l m r) = MkPastro l (f m) r
+
+export
+(Tensor ten i, Symmetric ten) => ProfunctorMonad (GenPastro ten) where
+  propure x = MkPastro unitr.fwd x unitr.bwd
+  projoin (MkPastro {x=x',y=y',z=z'} l' (MkPastro {x,y,z} l m r) r') = MkPastro ll m rr
+    where
+      ll : y `ten` (z' `ten` z) -> b
+      ll = l' . mapFst l . assoc.fwd . mapSnd swap
+
+      rr : a -> x `ten` (z' `ten` z)
+      rr = mapSnd swap . assoc.bwd . mapFst r . r'
+
+export
+ProfunctorAdjunction (GenPastro ten) (GenTambara ten) where
+  prounit x = MkTambara (MkPastro id x id)
+  procounit (MkPastro l (MkTambara x) r) = dimap r l x
+
+export
+(Associative ten, Symmetric ten) => GenStrong ten (GenPastro ten p) where
+  strongl (MkPastro {x,y,z} l m r) = MkPastro l' m r'
+    where
+      l' : y `ten` (z `ten` c) -> b `ten` c
+      l' = mapFst l . assoc.fwd
+      r' : a `ten` c -> x `ten` (z `ten` c)
+      r' = assoc.bwd . mapFst r
+  strongr (MkPastro {x,y,z} l m r) = MkPastro l' m r'
+    where
+      l' : y `ten` (c `ten` z) -> c `ten` b
+      l' = swap . mapFst l . assoc.fwd . mapSnd swap
+      r' : c `ten` a -> x `ten` (c `ten` z)
+      r' = mapSnd swap . assoc.bwd . mapFst r . swap
+
+
+export
+genpastro : GenStrong ten q => p :-> q -> GenPastro ten p :-> q
+genpastro @{gs} f (MkPastro l m r) = dimap r l (strongl @{gs} (f m))
+
+export
+ungenpastro : Tensor ten i => GenPastro ten p :-> q -> p :-> q
+ungenpastro f x = f (MkPastro unitr.fwd x unitr.bwd)
+
