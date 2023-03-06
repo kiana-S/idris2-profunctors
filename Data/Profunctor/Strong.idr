@@ -106,7 +106,8 @@ Tensor ten i => ProfunctorComonad (GenTambara ten) where
 export
 Associative ten => Symmetric ten => Profunctor p => GenStrong ten (GenTambara ten p) where
   strongl (MkTambara p) = MkTambara $ dimap assoc.bwd assoc.fwd p
-  strongr = dimap swap swap . strongl {ten,p=GenTambara ten p}
+  strongr (MkTambara p) = MkTambara $ dimap (assoc.bwd . mapFst swap)
+                                            (mapFst swap . assoc.fwd) p
 
 export
 Bifunctor ten => Profunctor p => Functor (GenTambara ten p a) where
