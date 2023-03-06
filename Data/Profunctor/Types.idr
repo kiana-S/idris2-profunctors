@@ -22,7 +22,7 @@ interface Profunctor p where
 infix 0 :->
 public export
 0 (:->) : (p, q : k -> k' -> Type) -> Type
-p :-> q = {0 a, b : _} -> p a b -> q a b
+p :-> q = forall a, b. p a b -> q a b
 
 
 -- Instances for existing types

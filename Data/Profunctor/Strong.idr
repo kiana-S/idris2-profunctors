@@ -48,7 +48,7 @@ uncurry' = rmap (uncurry id) . first
 public export
 record GenTambara (ten, p : Type -> Type -> Type) a b where
   constructor MkTambara
-  getTambara : {0 c : Type} -> p (a `ten` c) (b `ten` c)
+  getTambara : forall c. p (a `ten` c) (b `ten` c)
 
 export
 Bifunctor ten => Profunctor p => Profunctor (GenTambara ten p) where
