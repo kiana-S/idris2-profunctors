@@ -24,6 +24,18 @@ public export
 second : Strong p => p a b -> p (c, a) (c, b)
 second = strongr {ten=Pair}
 
+public export
+Choice : (p : Type -> Type -> Type) -> Type
+Choice = GenStrong Either
+
+public export
+left : Choice p => p a b -> p (Either a c) (Either b c)
+left = strongl {ten=Either}
+
+public export
+right : Choice p => p a b -> p (Either c a) (Either c b)
+right = strongr {ten=Either}
+
 
 
 export
