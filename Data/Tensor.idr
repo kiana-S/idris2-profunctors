@@ -4,30 +4,28 @@ module Data.Tensor
 
 
 public export
-record Isomorphism a b where
-  constructor MkIso
-  fwd : a -> b
-  bwd : b -> a
-
-
-public export
 interface Bifunctor ten => Associative ten where
-  assoc : Isomorphism (a `ten` (b `ten` c)) ((a `ten` b) `ten` c)
+  assoc : a `ten` (b `ten` c) <=> (a `ten` b) `ten` c
 
 public export
 interface Bifunctor ten => Symmetric ten where
   swap : a `ten` b -> b `ten` a
+  swap = symmetric.leftToRight
+
+  symmetric : a `ten` b <=> b `ten` a
+  symmetric = MkEquivalence swap swap
+
 
 
 public export
 interface Associative ten => Tensor ten i | ten where
-  unitl : Isomorphism (i `ten` a) a
-  unitr : Isomorphism (a `ten` i) a
+  unitl : i `ten` a <=> a
+  unitr : a `ten` i <=> a
 
 
 export
 Associative Pair where
-  assoc = MkIso (\(x,(y,z)) => ((x,y),z)) (\((x,y),z) => (x,(y,z)))
+  assoc = MkEquivalence (\(x,(y,z)) => ((x,y),z)) (\((x,y),z) => (x,(y,z)))
 
 export
 Symmetric Pair where
@@ -35,13 +33,13 @@ Symmetric Pair where
 
 export
 Tensor Pair () where
-  unitl = MkIso snd ((),)
-  unitr = MkIso fst (,())
+  unitl = MkEquivalence snd ((),)
+  unitr = MkEquivalence fst (,())
 
 
 export
 Associative Either where
-  assoc = MkIso f b
+  assoc = MkEquivalence f b
     where
       f : forall a,b,c. Either a (Either b c) -> Either (Either a b) c
       f (Left x) = Left (Left x)
@@ -59,5 +57,5 @@ Symmetric Either where
 
 export
 Tensor Either Void where
-  unitl = MkIso (either absurd id) Right
-  unitr = MkIso (either id absurd) Left
+  unitl = MkEquivalence (either absurd id) Right
+  unitr = MkEquivalence (either id absurd) Left

@@ -100,14 +100,14 @@ ProfunctorFunctor (GenTambara ten) where
 
 export
 Tensor ten i => ProfunctorComonad (GenTambara ten) where
-  proextract (MkTambara p) = dimap unitr.bwd unitr.fwd p
-  produplicate (MkTambara p) = MkTambara $ MkTambara $ dimap assoc.bwd assoc.fwd p
+  proextract (MkTambara p) = dimap unitr.rightToLeft unitr.leftToRight p
+  produplicate (MkTambara p) = MkTambara $ MkTambara $ dimap assoc.rightToLeft assoc.leftToRight p
 
 export
 Associative ten => Symmetric ten => Profunctor p => GenStrong ten (GenTambara ten p) where
-  strongl (MkTambara p) = MkTambara $ dimap assoc.bwd assoc.fwd p
-  strongr (MkTambara p) = MkTambara $ dimap (assoc.bwd . mapFst swap)
-                                            (mapFst swap . assoc.fwd) p
+  strongl (MkTambara p) = MkTambara $ dimap assoc.rightToLeft assoc.leftToRight p
+  strongr (MkTambara p) = MkTambara $ dimap (assoc.rightToLeft . mapFst swap)
+                                            (mapFst swap . assoc.leftToRight) p
 
 export
 Bifunctor ten => Profunctor p => Functor (GenTambara ten p a) where
@@ -120,7 +120,7 @@ gentambara @{gs} f x = MkTambara $ f $ strongl @{gs} x
 
 export
 ungentambara : Tensor ten i => Profunctor q => p :-> GenTambara ten q -> p :-> q
-ungentambara f x = dimap unitr.bwd unitr.fwd $ runTambara $ f x
+ungentambara f x = dimap unitr.rightToLeft unitr.leftToRight $ runTambara $ f x
 
 
 public export
@@ -168,14 +168,14 @@ ProfunctorFunctor (GenPastro ten) where
 
 export
 (Tensor ten i, Symmetric ten) => ProfunctorMonad (GenPastro ten) where
-  propure x = MkPastro unitr.fwd x unitr.bwd
+  propure x = MkPastro unitr.leftToRight x unitr.rightToLeft
   projoin (MkPastro {x=x',y=y',z=z'} l' (MkPastro {x,y,z} l m r) r') = MkPastro ll m rr
     where
       ll : y `ten` (z' `ten` z) -> b
-      ll = l' . mapFst l . assoc.fwd . mapSnd swap
+      ll = l' . mapFst l . assoc.leftToRight . mapSnd swap
 
       rr : a -> x `ten` (z' `ten` z)
-      rr = mapSnd swap . assoc.bwd . mapFst r . r'
+      rr = mapSnd swap . assoc.rightToLeft . mapFst r . r'
 
 export
 ProfunctorAdjunction (GenPastro ten) (GenTambara ten) where
@@ -187,15 +187,15 @@ export
   strongl (MkPastro {x,y,z} l m r) = MkPastro l' m r'
     where
       l' : y `ten` (z `ten` c) -> b `ten` c
-      l' = mapFst l . assoc.fwd
+      l' = mapFst l . assoc.leftToRight
       r' : a `ten` c -> x `ten` (z `ten` c)
-      r' = assoc.bwd . mapFst r
+      r' = assoc.rightToLeft . mapFst r
   strongr (MkPastro {x,y,z} l m r) = MkPastro l' m r'
     where
       l' : y `ten` (c `ten` z) -> c `ten` b
-      l' = swap . mapFst l . assoc.fwd . mapSnd swap
+      l' = swap . mapFst l . assoc.leftToRight . mapSnd swap
       r' : c `ten` a -> x `ten` (c `ten` z)
-      r' = mapSnd swap . assoc.bwd . mapFst r . swap
+      r' = mapSnd swap . assoc.rightToLeft . mapFst r . swap
 
 
 export
@@ -204,7 +204,7 @@ genpastro @{gs} f (MkPastro l m r) = dimap r l (strongl @{gs} (f m))
 
 export
 ungenpastro : Tensor ten i => GenPastro ten p :-> q -> p :-> q
-ungenpastro f x = f (MkPastro unitr.fwd x unitr.bwd)
+ungenpastro f x = f (MkPastro unitr.leftToRight x unitr.rightToLeft)
 
 
 public export
