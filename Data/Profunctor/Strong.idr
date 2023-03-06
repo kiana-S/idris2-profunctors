@@ -1,5 +1,6 @@
 module Data.Profunctor.Strong
 
+import Data.Morphisms
 import Data.Tensor
 import Data.Profunctor.Functor
 import Data.Profunctor.Types
@@ -41,6 +42,45 @@ right = strongr {ten=Either}
 export
 uncurry' : Strong p => p a (b -> c) -> p (a, b) c
 uncurry' = rmap (uncurry id) . first
+
+
+-- Implementations
+
+export
+Bifunctor ten => GenStrong ten Morphism where
+  strongl (Mor f) = Mor (mapFst f)
+  strongr (Mor f) = Mor (mapSnd f)
+
+export
+[Function] Bifunctor ten => GenStrong ten (\a,b => a -> b)
+    using Profunctor.Function where
+  strongl = mapFst
+  strongr = mapSnd
+
+export
+Functor f => GenStrong Pair (Kleislimorphism f) where
+  strongl (Kleisli f) = Kleisli $ \(a,c) => (,c) <$> f a
+  strongr (Kleisli f) = Kleisli $ \(c,a) => (c,) <$> f a
+
+export
+Applicative f => GenStrong Either (Kleislimorphism f) where
+  strongl (Kleisli f) = Kleisli $ either (map Left . f) (pure . Right)
+  strongr (Kleisli f) = Kleisli $ either (pure . Left) (map Right . f)
+
+export
+Functor f => GenStrong Pair (Star f) where
+  strongl (MkStar f) = MkStar $ \(a,c) => (,c) <$> f a
+  strongr (MkStar f) = MkStar $ \(c,a) => (c,) <$> f a
+
+export
+Applicative f => GenStrong Either (Star f) where
+  strongl (MkStar f) = MkStar $ either (map Left . f) (pure . Right)
+  strongr (MkStar f) = MkStar $ either (pure . Left) (map Right . f)
+
+export
+GenStrong Either Tagged where
+  strongl (Tag x) = Tag (Left x)
+  strongr (Tag x) = Tag (Right x)
 
 
 -- Tambara
