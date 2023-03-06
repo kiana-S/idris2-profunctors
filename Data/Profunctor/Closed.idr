@@ -78,14 +78,17 @@ data Environment : (p : Type -> Type -> Type) -> Type -> Type -> Type where
   MkEnv : ((z -> y) -> b) -> p x y -> (a -> z -> x) -> Environment p a b
 
 
+export
 Profunctor (Environment p) where
   dimap f g (MkEnv l m r) = MkEnv (g . l) m (r . f)
   lmap f (MkEnv l m r) = MkEnv l m (r . f)
   rmap g (MkEnv l m r) = MkEnv (g . l) m r
 
+export
 ProfunctorFunctor Environment where
   promap f (MkEnv l m r) = MkEnv l (f m) r
 
+export
 ProfunctorMonad Environment where
   propure p = MkEnv ($ ()) p const
   projoin (MkEnv {x=x',y=y',z=z'} l' (MkEnv {x,y,z} l m r) r') = MkEnv (ll . curry) m rr
@@ -95,10 +98,12 @@ ProfunctorMonad Environment where
       rr : a -> (z', z) -> x
       rr a (b, c) = r (r' a b) c
 
+export
 ProfunctorAdjunction Environment Closure where
   prounit p = MkClosure (MkEnv id p id)
   procounit (MkEnv l (MkClosure x) r) = dimap r l x
 
+export
 Closed (Environment p) where
   closed {x=x'} (MkEnv {x,y,z} l m r) = MkEnv l' m r'
     where
@@ -107,12 +112,15 @@ Closed (Environment p) where
       r' : (x' -> a) -> (z, x') -> x
       r' f (z,x) = r (f x) z
 
+export
 Profunctor p => Functor (Environment p a) where
   map = rmap
 
 
+export
 environment : Closed q => p :-> q -> Environment p :-> q
 environment f (MkEnv l m r) = dimap r l $ closed (f m)
 
+export
 unenvironment : Environment p :-> q -> p :-> q
 unenvironment f p = f (MkEnv ($ ()) p const)
