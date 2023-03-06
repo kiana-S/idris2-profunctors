@@ -57,6 +57,7 @@ export
 Symmetric Either where
   swap = either Right Left
 
+export
 Tensor Either Void where
   unitl = MkIso (either absurd id) Right
   unitr = MkIso (either id absurd) Left
