@@ -30,7 +30,7 @@ yon h s = (fst h s, snd h s)
 public export
 record Closure p a b where
   constructor MkClosure
-  getClosure : forall x. p (x -> a) (x -> b)
+  runClosure : forall x. p (x -> a) (x -> b)
 
 
 export
@@ -55,7 +55,7 @@ Strong p => GenStrong Pair (Closure p) where
 
 export
 Profunctor p => Closed (Closure p) where
-  closed p = getClosure $ produplicate p
+  closed p = runClosure $ produplicate p
 
 export
 Profunctor p => Functor (Closure p a) where
@@ -68,7 +68,7 @@ close f p = MkClosure $ f $ closed p
 
 export
 unclose : Profunctor q => p :-> Closure q -> p :-> q
-unclose f p = dimap const ($ ()) $ getClosure $ f p
+unclose f p = dimap const ($ ()) $ runClosure $ f p
 
 
 -- Environment

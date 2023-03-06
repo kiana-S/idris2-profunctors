@@ -88,7 +88,7 @@ GenStrong Either Tagged where
 public export
 record GenTambara (ten, p : Type -> Type -> Type) a b where
   constructor MkTambara
-  getTambara : forall c. p (a `ten` c) (b `ten` c)
+  runTambara : forall c. p (a `ten` c) (b `ten` c)
 
 export
 Bifunctor ten => Profunctor p => Profunctor (GenTambara ten p) where
@@ -120,7 +120,7 @@ gentambara @{gs} f x = MkTambara $ f $ strongl @{gs} x
 
 export
 ungentambara : Tensor ten i => Profunctor q => p :-> GenTambara ten q -> p :-> q
-ungentambara f x = dimap unitr.bwd unitr.fwd $ getTambara $ f x
+ungentambara f x = dimap unitr.bwd unitr.fwd $ runTambara $ f x
 
 
 public export

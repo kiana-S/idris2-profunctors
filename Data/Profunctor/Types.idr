@@ -109,7 +109,7 @@ Functor f => Profunctor (Costar f) where
 public export
 record Tagged {0 k : Type} (a : k) b where
   constructor Tag
-  getTagged : b
+  runTagged : b
 
 public export
 retag : Tagged a c -> Tagged b c
@@ -126,7 +126,7 @@ Applicative (Tagged a) where
 
 export
 Monad (Tagged a) where
-  join = getTagged
+  join = runTagged
   Tag x >>= f = f x
 
 export

@@ -30,38 +30,38 @@ import Data.Profunctor.Closed
 
 record Bazaar a b t where
   constructor MkBazaar
-  getBazaar : forall f. Applicative f => (a -> f b) -> f t
+  runBazaar : forall f. Applicative f => (a -> f b) -> f t
 
 Functor (Bazaar a b) where
   map f (MkBazaar g) = MkBazaar (map f . g)
 
 Applicative (Bazaar a b) where
   pure a = MkBazaar $ \_ => pure a
-  mf <*> ma = MkBazaar $ \k => getBazaar mf k <*> getBazaar ma k
+  mf <*> ma = MkBazaar $ \k => runBazaar mf k <*> runBazaar ma k
 
 sell : a -> Bazaar a b b
 sell a = MkBazaar ($ a)
 
 record Baz t b a where
   constructor MkBaz
-  getBaz : forall f. Applicative f => (a -> f b) -> f t
+  runBaz : forall f. Applicative f => (a -> f b) -> f t
 
 Functor (Baz t b) where
   map f (MkBaz g) = MkBaz (g . (. f))
 
 
 sold : Baz t a a -> t
-sold m = runIdentity (getBaz m Id)
+sold m = runIdentity (runBaz m Id)
 
 Foldable (Baz t b) where
-  foldr f i bz = getBaz bz @{appEndo} f i
+  foldr f i bz = runBaz bz @{appEndo} f i
     where
       -- Equivalent to `Const (Endomorphism acc)`
       appEndo : Applicative (\_ => acc -> acc)
       appEndo = MkApplicative @{MkFunctor (const id)} (const id) (.)
 
 Traversable (Baz t b) where
-  traverse f bz = map (\m => MkBaz (getBazaar m)) $ getBaz bz @{Compose} $ \x => sell <$> f x
+  traverse f bz = map (\m => MkBaz (runBazaar m)) $ runBaz bz @{Compose} $ \x => sell <$> f x
 
 
 public export
@@ -78,7 +78,7 @@ interface (Strong p, Choice p) => Traversing p where
 public export
 record CofreeTraversing p a b where
   constructor MkCFT
-  getCFT : forall f. Traversable f => p (f a) (f b)
+  runCFT : forall f. Traversable f => p (f a) (f b)
 
 export
 Profunctor p => Profunctor (CofreeTraversing p) where
