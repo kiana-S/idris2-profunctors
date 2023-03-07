@@ -1,5 +1,5 @@
 package profunctors
-version = 0.0.0
+version = 1.0.0
 
 authors = "Kiana Sheibani"
 license = "MIT"
@@ -13,6 +13,11 @@ modules = Data.Tensor,
           Data.Profunctor.Types,
           Data.Profunctor.Functor,
           Data.Profunctor.Strong,
+          Data.Profunctor.Costrong,
           Data.Profunctor.Closed,
           Data.Profunctor.Traversing,
-          Data.Profunctor.Sieve
+          Data.Profunctor.Mapping,
+          Data.Profunctor.Sieve,
+          Data.Profunctor.Representable,
+          Data.Profunctor.Cayley,
+          Data.Profunctor.Yoneda
