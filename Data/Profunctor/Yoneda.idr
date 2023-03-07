@@ -1,6 +1,7 @@
 module Data.Profunctor.Yoneda
 
 import Data.Profunctor
+import Data.Profunctor.Costrong
 import Data.Profunctor.Traversing
 import Data.Profunctor.Mapping
 import Data.Profunctor.Sieve
@@ -45,6 +46,11 @@ export
 GenStrong ten p => GenStrong ten (Yoneda p) where
   strongl = propure . strongl {ten,p} . proextract
   strongr = propure . strongr {ten,p} . proextract
+
+export
+GenCostrong ten p => GenCostrong ten (Yoneda p) where
+  costrongl = propure . costrongl {ten,p} . proextract
+  costrongr = propure . costrongr {ten,p} . proextract
 
 export
 Closed p => Closed (Yoneda p) where
@@ -106,6 +112,11 @@ export
 GenStrong ten p => GenStrong ten (Coyoneda p) where
   strongl = propure . strongl {ten,p} . proextract
   strongr = propure . strongr {ten,p} . proextract
+
+export
+GenCostrong ten p => GenCostrong ten (Coyoneda p) where
+  costrongl = propure . costrongl {ten,p} . proextract
+  costrongr = propure . costrongr {ten,p} . proextract
 
 export
 Closed p => Closed (Coyoneda p) where
