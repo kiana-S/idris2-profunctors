@@ -54,6 +54,10 @@ Functor f => Mapping p => Mapping (Cayley f p) where
   map' (MkCayley p) = MkCayley (map' <$> p)
   roam f (MkCayley p) = MkCayley (roam f <$> p)
 
+export
+Functor g => Sieve p f => Sieve (Cayley g p) (g . f) using Functor.Compose where
+  sieve (MkCayley p) x = ($ x) . sieve <$> p
+
 
 export
 mapCayley : (forall x. f x -> g x) -> Cayley f p a b -> Cayley g p a b
