@@ -16,3 +16,15 @@ interface (Traversing p, Closed p) => Mapping p where
     where
       functor : Functor (\a => (a -> b) -> t)
       functor = MkFunctor (\f => (. (. f)))
+
+
+export
+Mapping Morphism where
+  map' (Mor f) = Mor (map f)
+  roam f (Mor x) = Mor (f x)
+
+export
+[Function] Mapping (\a,b => a -> b)
+    using Traversing.Function Closed.Function where
+  map' = map
+  roam = id
