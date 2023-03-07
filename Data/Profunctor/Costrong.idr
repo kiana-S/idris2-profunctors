@@ -144,36 +144,19 @@ ProfunctorAdjunction (GenCopastro ten) (GenCotambara ten) where
   procounit (MkCopastro h) = proextract (h id)
 
 
-export
-gencopastro : GenCostrong ten q => p :-> q -> GenCopastro ten p :-> q
-gencopastro f (MkCopastro h) = h f
-
-export
-ungencopastro : Tensor ten i => GenCopastro ten p :-> q -> p :-> q
-ungencopastro f x = f (MkCopastro ($ x))
-
-
 public export
 Copastro : (p : Type -> Type -> Type) -> Type -> Type -> Type
 Copastro = GenCopastro Pair
-
-export
-copastro : Costrong q => p :-> q -> Copastro p :-> q
-copastro = gencopastro
-
-export
-uncopastro : Copastro p :-> q -> p :-> q
-uncopastro = ungencopastro
-
 
 public export
 CopastroSum : (p : Type -> Type -> Type) -> Type -> Type -> Type
 CopastroSum = GenCopastro Either
 
-export
-copastroSum : Cochoice q => p :-> q -> CopastroSum p :-> q
-copastroSum = gencopastro
 
 export
-uncopastroSum : CopastroSum p :-> q -> p :-> q
-uncopastroSum = ungencopastro
+copastro : GenCostrong ten q => p :-> q -> GenCopastro ten p :-> q
+copastro f (MkCopastro h) = h f
+
+export
+uncopastro : Tensor ten i => GenCopastro ten p :-> q -> p :-> q
+uncopastro f x = f (MkCopastro ($ x))

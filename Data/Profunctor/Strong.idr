@@ -114,39 +114,22 @@ Bifunctor ten => Profunctor p => Functor (GenTambara ten p a) where
   map = rmap
 
 
-export
-gentambara : GenStrong ten p => p :-> q -> p :-> GenTambara ten q
-gentambara @{gs} f x = MkTambara $ f $ strongl @{gs} x
-
-export
-ungentambara : Tensor ten i => Profunctor q => p :-> GenTambara ten q -> p :-> q
-ungentambara f x = dimap unitr.rightToLeft unitr.leftToRight $ runTambara $ f x
-
-
 public export
 Tambara : (p : Type -> Type -> Type) -> Type -> Type -> Type
 Tambara = GenTambara Pair
-
-export
-tambara : Strong p => p :-> q -> p :-> Tambara q
-tambara = gentambara
-
-export
-untambara : Profunctor q => p :-> Tambara q -> p :-> q
-untambara = ungentambara
-
 
 public export
 TambaraSum : (p : Type -> Type -> Type) -> Type -> Type -> Type
 TambaraSum = GenTambara Either
 
-export
-tambaraSum : Choice p => p :-> q -> p :-> TambaraSum q
-tambaraSum = gentambara
 
 export
-untambaraSum : Profunctor q => p :-> TambaraSum q -> p :-> q
-untambaraSum = ungentambara
+tambara : GenStrong ten p => p :-> q -> p :-> GenTambara ten q
+tambara @{gs} f x = MkTambara $ f $ strongl @{gs} x
+
+export
+untambara : Tensor ten i => Profunctor q => p :-> GenTambara ten q -> p :-> q
+untambara f x = dimap unitr.rightToLeft unitr.leftToRight $ runTambara $ f x
 
 
 -- Pastro
@@ -198,36 +181,20 @@ export
       r' = mapSnd swap . assoc.rightToLeft . mapFst r . swap
 
 
-export
-genpastro : GenStrong ten q => p :-> q -> GenPastro ten p :-> q
-genpastro @{gs} f (MkPastro l m r) = dimap r l (strongl @{gs} (f m))
-
-export
-ungenpastro : Tensor ten i => GenPastro ten p :-> q -> p :-> q
-ungenpastro f x = f (MkPastro unitr.leftToRight x unitr.rightToLeft)
-
-
 public export
 Pastro : (p : Type -> Type -> Type) -> Type -> Type -> Type
 Pastro = GenPastro Pair
-
-export
-pastro : Strong q => p :-> q -> Pastro p :-> q
-pastro = genpastro
-
-export
-unpastro : Pastro p :-> q -> p :-> q
-unpastro = ungenpastro
-
 
 public export
 PastroSum : (p : Type -> Type -> Type) -> Type -> Type -> Type
 PastroSum = GenPastro Either
 
-export
-pastroSum : Choice q => p :-> q -> PastroSum p :-> q
-pastroSum = genpastro
 
 export
-unpastroSum : PastroSum p :-> q -> p :-> q
-unpastroSum = ungenpastro
+pastro : GenStrong ten q => p :-> q -> GenPastro ten p :-> q
+pastro @{gs} f (MkPastro l m r) = dimap r l (strongl @{gs} (f m))
+
+export
+unpastro : Tensor ten i => GenPastro ten p :-> q -> p :-> q
+unpastro f x = f (MkPastro unitr.leftToRight x unitr.rightToLeft)
+
