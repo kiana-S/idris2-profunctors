@@ -3,10 +3,7 @@ module Data.Profunctor.Traversing
 import Control.Monad.Identity
 import Data.Morphisms
 import Data.Tensor
-import Data.Profunctor.Types
-import Data.Profunctor.Functor
-import Data.Profunctor.Strong
-import Data.Profunctor.Closed
+import Data.Profunctor
 
 %default total
 
@@ -71,6 +68,28 @@ interface (Strong p, Choice p) => Traversing p where
 
   wander : (forall f. Applicative f => (a -> f b) -> s -> f t) -> p a b -> p s t
   wander f = dimap (\s => MkBaz $ \afb => f afb s) sold . traverse'
+
+
+export
+Traversing Morphism where
+  traverse' (Mor f) = Mor (map f)
+  wander f (Mor p) = Mor (runIdentity . (f $ Id . p))
+
+export
+[Function] Traversing (\a,b => a -> b) using Strong.Function where
+  traverse' = map
+  wander f g = runIdentity . (f $ Id . g)
+
+export
+Applicative f => Traversing (Kleislimorphism f) where
+  traverse' (Kleisli p) = Kleisli (traverse p)
+  wander f (Kleisli p) = Kleisli (f p)
+
+export
+Applicative f => Traversing (Star f) where
+  traverse' (MkStar p) = MkStar (traverse p)
+  wander f (MkStar p) = MkStar (f p)
+
 
 
 -- CofreeTraversing
