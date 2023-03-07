@@ -1,5 +1,6 @@
 module Data.Profunctor.Closed
 
+import Data.Morphisms
 import Data.Profunctor.Types
 import Data.Profunctor.Functor
 import Data.Profunctor.Strong
@@ -13,6 +14,19 @@ interface Profunctor p => Closed p where
 
 
 export
+Closed Morphism where
+  closed (Mor f) = Mor (f .)
+
+export
+[Function] Closed (\a,b => a -> b) using Profunctor.Function where
+  closed = (.)
+
+export
+Functor f => Closed (Costar f) where
+  closed (MkCostar p) = MkCostar $ \f,x => p (map ($ x) f)
+
+
+export
 curry' : Closed p => p (a, b) c -> p a (b -> c)
 curry' = lmap (,) . closed
 
@@ -22,7 +36,6 @@ hither h = (fst . h, snd . h)
 
 yon : (s -> a, s -> b) -> s -> (a,b)
 yon h s = (fst h s, snd h s)
-
 
 
 -- Closure
