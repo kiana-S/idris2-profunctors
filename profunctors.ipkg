@@ -6,7 +6,13 @@ license = "MIT"
 
 readme = "README.md"
 
+langversion >= 0.6.0
+
 modules = Data.Tensor,
+          Data.Profunctor,
           Data.Profunctor.Types,
           Data.Profunctor.Functor,
-          Data.Profunctor.Strong
+          Data.Profunctor.Strong,
+          Data.Profunctor.Closed,
+          Data.Profunctor.Traversing,
+          Data.Profunctor.Sieve
