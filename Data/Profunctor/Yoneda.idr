@@ -46,6 +46,11 @@ yonedaEqv : Profunctor p => p a b <=> Yoneda p a b
 yonedaEqv = MkEquivalence propure proextract
 
 export
+yonedaIso : (Profunctor q, Profunctor r) => forall p. Profunctor p =>
+              p (q a b) (r a' b') -> p (Yoneda q a b) (Yoneda r a' b')
+yonedaIso = dimap proextract propure
+
+export
 Functor (Yoneda p a) where
   map = rmap
 
@@ -117,6 +122,11 @@ ProfunctorComonad Coyoneda where
 export
 coyonedaEqv : Profunctor p => p a b <=> Coyoneda p a b
 coyonedaEqv = MkEquivalence propure proextract
+
+export
+coyonedaIso : (Profunctor q, Profunctor r) => forall p. Profunctor p =>
+              p (q a b) (r a' b') -> p (Coyoneda q a b) (Coyoneda r a' b')
+coyonedaIso = dimap proextract propure
 
 export
 Functor (Coyoneda p a) where
