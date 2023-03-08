@@ -61,9 +61,17 @@ export
 Functor f => Representable (Star f) f where
   tabulate = MkStar
 
+export
+Corepresentable Morphism Identity where
+  cotabulate f = Mor (f . Id)
+
+namespace Corepresentable
+  ||| A named implementation of `Corepresentable` for function types.
+  ||| Use this to avoid having to use a type wrapper like `Morphism`.
+  export
+  [Function] Corepresentable (\a,b => a -> b) Identity using Cosieve.Function where
+    cotabulate = (. Id)
 
 export
 Functor f => Corepresentable (Costar f) f where
   cotabulate = MkCostar
-
-

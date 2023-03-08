@@ -63,5 +63,5 @@ Functor g => Sieve p f => Sieve (Cayley g p) (g . f) using Functor.Compose where
 
 
 export
-mapCayley : (forall x. f x -> g x) -> Cayley f p a b -> Cayley g p a b
+mapCayley : (forall x. f x -> g x) -> Cayley f p :-> Cayley g p
 mapCayley f (MkCayley p) = MkCayley (f p)

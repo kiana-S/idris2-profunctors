@@ -82,7 +82,7 @@ Functor f => Profunctor (Kleislimorphism f) where
 
 
 ------------------------------------------------------------------------------
--- Implementations for existing types
+-- New profunctor types
 ------------------------------------------------------------------------------
 
 

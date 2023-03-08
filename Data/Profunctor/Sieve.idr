@@ -48,7 +48,6 @@ Functor f => Sieve (Star f) f where
   sieve = applyStar
 
 
-
 export
 Cosieve Morphism Identity where
   cosieve (Mor f) = f . runIdentity
