@@ -85,6 +85,11 @@ interface (Strong p, Choice p) => Traversing p where
   wander f = dimap (\s => MkBaz $ \afb => f afb s) sold . traverse'
 
 
+------------------------------------------------------------------------------
+-- Implementations
+------------------------------------------------------------------------------
+
+
 export
 Traversing Morphism where
   traverse' (Mor f) = Mor (map f)

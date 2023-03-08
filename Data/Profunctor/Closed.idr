@@ -26,7 +26,7 @@ interface Profunctor p => Closed p where
 
 
 ------------------------------------------------------------------------------
--- Implementations for existing types
+-- Implementations
 ------------------------------------------------------------------------------
 
 
