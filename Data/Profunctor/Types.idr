@@ -192,3 +192,81 @@ Profunctor Tagged where
   dimap _ f (Tag x) = Tag (f x)
   lmap = const retag
   rmap f (Tag x) = Tag (f x)
+
+
+||| `Forget r` is equivalent to `Star (Const r)`.
+public export
+record Forget {0 k : Type} r a (b : k) where
+  constructor MkForget
+  runForget : a -> r
+
+public export
+reforget : Forget r a b -> Forget r a c
+reforget (MkForget k) = MkForget k
+
+export
+Functor (Forget r a) where
+  map _ = reforget
+
+export
+Contravariant (Forget {k=Type} r a) where
+  contramap _ = reforget
+
+export
+Monoid r => Applicative (Forget r a) where
+  pure _ = MkForget (const neutral)
+  MkForget f <*> MkForget g = MkForget (f <+> g)
+
+export
+Monoid r => Monad (Forget {k=Type} r a) where
+  join = reforget
+  (>>=) = reforget .: const
+
+export
+Foldable (Forget r a) where
+  foldr _ x _ = x
+  foldl _ x _ = x
+  null = const True
+  foldlM _ x _ = pure x
+  toList _ = []
+  foldMap _ _ = neutral
+
+export
+Traversable (Forget r a) where
+  traverse _ = pure . reforget
+
+export
+Profunctor (Forget r) where
+  dimap f _ (MkForget k) = MkForget (k . f)
+  lmap f (MkForget k) = MkForget (k . f)
+  rmap = map
+
+
+||| `Coforget r` is equivalent to `Costar (Const r)`.
+public export
+record Coforget {0 k : Type} r (a : k) b where
+  constructor MkCoforget
+  runCoforget : r -> b
+
+public export
+recoforget : Coforget r a c -> Coforget r b c
+recoforget (MkCoforget k) = MkCoforget k
+
+export
+Functor (Coforget r a) where
+  map f (MkCoforget k) = MkCoforget (f . k)
+
+export
+Applicative (Coforget r a) where
+  pure = MkCoforget . const
+  MkCoforget f <*> MkCoforget g = MkCoforget (\r => f r (g r))
+
+export
+Monad (Coforget r a) where
+  MkCoforget k >>= f = MkCoforget (\r => runCoforget (f $ k r) r)
+
+export
+Profunctor (Coforget f) where
+  dimap _ f (MkCoforget k) = MkCoforget (f . k)
+  lmap _ = recoforget
+  rmap = map

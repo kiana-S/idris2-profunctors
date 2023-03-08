@@ -1,5 +1,6 @@
 module Data.Profunctor.Sieve
 
+import Control.Applicative.Const
 import Control.Monad.Identity
 import Data.Morphisms
 import Data.Profunctor
@@ -47,6 +48,10 @@ export
 Functor f => Sieve (Star f) f where
   sieve = applyStar
 
+export
+Sieve (Forget r) (Const r) where
+  sieve (MkForget k) = MkConst . k
+
 
 export
 Cosieve Morphism Identity where
@@ -62,3 +67,7 @@ namespace Cosieve
 export
 Functor f => Cosieve (Costar f) f where
   cosieve = applyCostar
+
+export
+Cosieve (Coforget r) (Const r) where
+  cosieve (MkCoforget k) = k . runConst

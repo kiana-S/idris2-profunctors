@@ -89,6 +89,16 @@ GenCostrong Pair Tagged where
   costrongl (Tag (x,_)) = Tag x
   costrongr (Tag (_,x)) = Tag x
 
+export
+GenCostrong Either (Forget r) where
+  costrongl (MkForget k) = MkForget (k . Left)
+  costrongr (MkForget k) = MkForget (k . Right)
+
+export
+GenCostrong Pair (Coforget r) where
+  costrongl (MkCoforget k) = MkCoforget (fst . k)
+  costrongr (MkCoforget k) = MkCoforget (snd . k)
+
 
 ------------------------------------------------------------------------------
 -- Cotambara

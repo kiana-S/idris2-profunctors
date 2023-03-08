@@ -1,5 +1,6 @@
 module Data.Profunctor.Traversing
 
+import Control.Applicative.Const
 import Control.Monad.Identity
 import Data.Morphisms
 import Data.Tensor
@@ -105,6 +106,11 @@ export
 Applicative f => Traversing (Star f) where
   traverse' (MkStar p) = MkStar (traverse p)
   wander f (MkStar p) = MkStar (f p)
+
+export
+Monoid r => Traversing (Forget r) where
+  traverse' (MkForget k) = MkForget (foldMap k)
+  wander f (MkForget k) = MkForget (runConst . f (MkConst . k))
 
 
 ------------------------------------------------------------------------------

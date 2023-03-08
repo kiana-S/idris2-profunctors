@@ -1,5 +1,6 @@
 module Data.Profunctor.Representable
 
+import Control.Applicative.Const
 import Control.Monad.Identity
 import Data.Morphisms
 import Data.Profunctor
@@ -62,6 +63,10 @@ Functor f => Representable (Star f) f where
   tabulate = MkStar
 
 export
+Representable (Forget r) (Const r) where
+  tabulate = MkForget . (runConst .)
+
+export
 Corepresentable Morphism Identity where
   cotabulate f = Mor (f . Id)
 
@@ -75,3 +80,7 @@ namespace Corepresentable
 export
 Functor f => Corepresentable (Costar f) f where
   cotabulate = MkCostar
+
+export
+Corepresentable (Coforget r) (Const r) where
+  cotabulate = MkCoforget . (. MkConst)

@@ -132,6 +132,21 @@ GenStrong Either Tagged where
   strongl (Tag x) = Tag (Left x)
   strongr (Tag x) = Tag (Right x)
 
+export
+GenStrong Pair (Forget r) where
+  strongl (MkForget k) = MkForget (k . fst)
+  strongr (MkForget k) = MkForget (k . snd)
+
+export
+Monoid r => GenStrong Either (Forget r) where
+  strongl (MkForget k) = MkForget (either k (const neutral))
+  strongr (MkForget k) = MkForget (either (const neutral) k)
+
+export
+GenStrong Either (Coforget r) where
+  strongl (MkCoforget k) = MkCoforget (Left . k)
+  strongr (MkCoforget k) = MkCoforget (Right . k)
+
 
 ------------------------------------------------------------------------------
 -- Tambara
