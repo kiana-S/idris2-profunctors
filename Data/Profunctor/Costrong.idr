@@ -33,7 +33,7 @@ import Data.Profunctor.Types
 ||| * `costrongl = costrongr . dimap swap swap`
 ||| * `costrongl . dimap unitr.rightToLeft unitr.leftToRight = id`
 ||| * `costrongl . lmap (mapSnd f) = costrongl . rmap (mapSnd f)`
-||| * `costrongr . costrongr = costrongr . dimap assoc.leftToRight assoc.rightToLeft`
+||| * `costrongr . costrongr = costrongr . dimap assocl assocr`
 |||
 ||| @ ten The tensor product of the monoidal structure
 public export

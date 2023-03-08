@@ -15,10 +15,18 @@ module Data.Tensor
 ||| associative up to isomorphism.
 |||
 ||| Laws:
-||| * `mapFst assoc.rightToLeft . assoc.leftToRight . assoc.leftToRight = assoc.leftToRight . mapSnd assoc.leftToRight`
+||| * `mapFst assocl . assocl . assocl = assocl . mapSnd assocl`
 public export
 interface Bifunctor ten => Associative ten where
+  assocl : a `ten` (b `ten` c) -> (a `ten` b) `ten` c
+  assocl = assoc.leftToRight
+
+  assocr : (a `ten` b) `ten` c -> a `ten` (b `ten` c)
+  assocr = assoc.rightToLeft
+
   assoc : a `ten` (b `ten` c) <=> (a `ten` b) `ten` c
+  assoc = MkEquivalence assocl assocr
+
 
 ||| A bifunctor that admits a swap map, i.e. a bifunctor that is
 ||| symmetric up to isomorphism.
@@ -38,7 +46,7 @@ interface Bifunctor ten => Symmetric ten where
 ||| monoidal category.
 |||
 ||| Laws:
-||| * `mapSnd unitl.leftToRight = mapFst unitr.leftToRight . assoc.leftToRight`
+||| * `mapSnd unitl.leftToRight = mapFst unitr.leftToRight . assocl`
 public export
 interface Associative ten => Tensor ten i | ten where
   unitl : i `ten` a <=> a
@@ -52,7 +60,8 @@ interface Associative ten => Tensor ten i | ten where
 
 export
 Associative Pair where
-  assoc = MkEquivalence (\(x,(y,z)) => ((x,y),z)) (\((x,y),z) => (x,(y,z)))
+  assocl (x,(y,z)) = ((x,y),z)
+  assocr ((x,y),z) = (x,(y,z))
 
 export
 Symmetric Pair where
@@ -71,17 +80,13 @@ Tensor Pair () where
 
 export
 Associative Either where
-  assoc = MkEquivalence f b
-    where
-      f : forall a,b,c. Either a (Either b c) -> Either (Either a b) c
-      f (Left x) = Left (Left x)
-      f (Right (Left x)) = Left (Right x)
-      f (Right (Right x)) = Right x
+  assocl (Left x) = Left (Left x)
+  assocl (Right (Left x)) = Left (Right x)
+  assocl (Right (Right x)) = Right x
 
-      b : forall a,b,c. Either (Either a b) c -> Either a (Either b c)
-      b (Left (Left x)) = Left x
-      b (Left (Right x)) = Right (Left x)
-      b (Right x) = Right (Right x)
+  assocr (Left (Left x)) = Left x
+  assocr (Left (Right x)) = Right (Left x)
+  assocr (Right x) = Right (Right x)
 
 export
 Symmetric Either where
