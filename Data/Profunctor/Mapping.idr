@@ -141,12 +141,12 @@ Functor (FreeMapping p a) where
 export
 GenStrong Pair (FreeMapping p) where
   strongr (MkFM l m r) = MkFM @{Compose} (map l) m (map r)
-  strongl = dimap Builtin.swap Builtin.swap . strongr {p=FreeMapping p}
+  strongl = dimap swap' swap' . strongr {p=FreeMapping p}
 
 export
 GenStrong Either (FreeMapping p) where
   strongr (MkFM l m r) = MkFM @{Compose} (map l) m (map r)
-  strongl = dimap Tensor.swap Tensor.swap . strongr {p=FreeMapping p}
+  strongl = dimap swap' swap' . strongr {p=FreeMapping p}
 
 export
 Closed (FreeMapping p) where

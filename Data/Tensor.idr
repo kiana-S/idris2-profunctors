@@ -34,11 +34,11 @@ interface Bifunctor ten => Associative ten where
 ||| The bifunctor `ten` is generally also associative.
 public export
 interface Bifunctor ten => Symmetric ten where
-  swap : a `ten` b -> b `ten` a
-  swap = symmetric.leftToRight
+  swap' : a `ten` b -> b `ten` a
+  swap' = symmetric.leftToRight
 
   symmetric : a `ten` b <=> b `ten` a
-  symmetric = MkEquivalence swap swap
+  symmetric = MkEquivalence swap' swap'
 
 
 ||| A tensor product is an associative bifunctor that has an identity element
@@ -65,7 +65,7 @@ Associative Pair where
 
 export
 Symmetric Pair where
-  swap = Builtin.swap
+  swap' = swap
 
 export
 Tensor Pair () where
@@ -90,7 +90,7 @@ Associative Either where
 
 export
 Symmetric Either where
-  swap = either Right Left
+  swap' = either Right Left
 
 export
 Tensor Either Void where

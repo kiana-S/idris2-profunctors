@@ -30,7 +30,7 @@ import Data.Profunctor.Types
 ||| `ten` is generally expected to implement `(Tensor ten i, Symmetric ten)`.
 |||
 ||| Laws:
-||| * `costrongl = costrongr . dimap swap swap`
+||| * `costrongl = costrongr . dimap swap' swap'`
 ||| * `costrongl . dimap unitr.rightToLeft unitr.leftToRight = id`
 ||| * `costrongl . lmap (mapSnd f) = costrongl . rmap (mapSnd f)`
 ||| * `costrongr . costrongr = costrongr . dimap assocl assocr`

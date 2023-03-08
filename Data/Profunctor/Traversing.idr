@@ -128,12 +128,12 @@ Profunctor p => Profunctor (CofreeTraversing p) where
 export
 Profunctor p => GenStrong Pair (CofreeTraversing p) where
   strongr (MkCFT p) = MkCFT (p @{Compose @{%search} @{TraversablePair}})
-  strongl = dimap Builtin.swap Builtin.swap . strongr {p=CofreeTraversing p}
+  strongl = dimap swap' swap' . strongr {p=CofreeTraversing p}
 
 export
 Profunctor p => GenStrong Either (CofreeTraversing p) where
   strongr (MkCFT p) = MkCFT (p @{Compose {f=Either c}})
-  strongl = dimap swap swap . strongr {p=CofreeTraversing p}
+  strongl = dimap swap' swap' . strongr {p=CofreeTraversing p}
 
 export
 Profunctor p => Traversing (CofreeTraversing p) where
@@ -182,12 +182,12 @@ Profunctor (FreeTraversing p) where
 export
 GenStrong Pair (FreeTraversing p) where
   strongr (MkFT l m r) = MkFT @{Compose @{TraversablePair}} (map l) m (map r)
-  strongl = dimap Builtin.swap Builtin.swap . strongr {p=FreeTraversing p}
+  strongl = dimap swap' swap' . strongr {p=FreeTraversing p}
 
 export
 GenStrong Either (FreeTraversing p) where
   strongr (MkFT l m r) = MkFT @{Compose {t=Either c}} (map l) m (map r)
-  strongl = dimap swap swap . strongr {p=FreeTraversing p}
+  strongl = dimap swap' swap' . strongr {p=FreeTraversing p}
 
 export
 Traversing (FreeTraversing p) where
