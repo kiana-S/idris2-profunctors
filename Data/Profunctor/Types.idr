@@ -1,3 +1,5 @@
+||| This module contains the Profunctor interface itself, along with a few
+||| examples of profunctors.
 module Data.Profunctor.Types
 
 import Data.Contravariant
@@ -6,26 +8,56 @@ import Data.Morphisms
 %default total
 
 
+------------------------------------------------------------------------------
+-- Profunctor interface
+------------------------------------------------------------------------------
+
+
+||| An interface for (self-enriched) profunctors `Idr -/-> Idr`.
+|||
+||| Formally, a profunctor is a binary functor that is contravariant in its
+||| first argument and covariant in its second. A common example of a profunctor
+||| is the (non-dependent) function type.
+|||
+||| Implementations can be defined by specifying either `dimap` or both `lmap`
+||| and `rmap`.
+|||
+||| Laws:
+||| * `dimap id id = id`
+||| * `dimap (f . g) (h . i) = dimap g h . dimap f i`
 public export
 interface Profunctor p where
 
+  ||| Map over both parameters of a profunctor at the same time, with the
+  ||| left function argument mapping contravariantly.
   dimap : (a -> b) -> (c -> d) -> p b c -> p a d
   dimap f g = lmap f . rmap g
 
+  ||| Map contravariantly over the first parameter of a profunctor.
   lmap : (a -> b) -> p b c -> p a c
   lmap f = dimap f id
 
+  ||| Map covariantly over the second parameter of a profunctor.
   rmap : (b -> c) -> p a b -> p a c
   rmap = dimap id
 
 
 infix 0 :->
+||| A transformation between profunctors that preserves their type parameters.
+|||
+||| Formally, this is a natural transformation of functors `Idrᵒᵖ * Idr => Idr`.
+|||
+||| If the transformation is `tr`, then we have the following law:
+||| * `tr . dimap f g = dimap f g . tr`
 public export
 0 (:->) : (p, q : k -> k' -> Type) -> Type
 p :-> q = forall a, b. p a b -> q a b
 
 
--- Instances for existing types
+------------------------------------------------------------------------------
+-- Implementations for existing types
+------------------------------------------------------------------------------
+
 
 export
 Profunctor Morphism where
@@ -34,6 +66,8 @@ Profunctor Morphism where
   rmap = map
 
 namespace Profunctor
+  ||| A named implementation of `Profunctor` for function types.
+  ||| Use this to avoid having to use a type wrapper like `Morphism`.
   export
   [Function] Profunctor (\a,b => a -> b) where
     dimap f g h = g . h . f
@@ -47,8 +81,15 @@ Functor f => Profunctor (Kleislimorphism f) where
   rmap = map
 
 
--- Examples of profunctors
+------------------------------------------------------------------------------
+-- Implementations for existing types
+------------------------------------------------------------------------------
 
+
+||| Lift a functor into a profunctor in the return type.
+|||
+||| This type is equivalent to `Kleislimorphism` except for the polymorphic type
+||| of `b`.
 public export
 record Star {0 k : Type} (f : k -> Type) a (b : k) where
   constructor MkStar
@@ -81,6 +122,7 @@ Functor f => Profunctor (Star f) where
   rmap f (MkStar g) = MkStar (map f . g)
 
 
+||| Lift a functor into a profunctor in the argument type.
 public export
 record Costar {0 k : Type} (f : k -> Type) (a : k) b where
   constructor MkCostar
@@ -106,11 +148,14 @@ Functor f => Profunctor (Costar f) where
   rmap f (MkCostar g) = MkCostar (f . g)
 
 
+||| The profunctor that ignores its argument type.
+||| Equivalent to `const id` up to isomorphism.
 public export
 record Tagged {0 k : Type} (a : k) b where
   constructor Tag
   runTagged : b
 
+||| Retag the value with a different type-level parameter.
 public export
 retag : Tagged a c -> Tagged b c
 retag (Tag x) = Tag x

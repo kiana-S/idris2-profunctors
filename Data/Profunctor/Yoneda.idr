@@ -9,6 +9,12 @@ import Data.Profunctor.Sieve
 %default total
 
 
+------------------------------------------------------------------------------
+-- Yoneda
+------------------------------------------------------------------------------
+
+
+||| The cofree profunctor given a data constructor with two type parameters.
 public export
 record Yoneda p a b where
   constructor MkYoneda
@@ -34,6 +40,7 @@ ProfunctorComonad Yoneda where
   proextract (MkYoneda p) = p id id
   produplicate p = MkYoneda $ \l,r => dimap l r p
 
+||| A witness that `Yoneda p` and `p` are equivalent when `p` is a profunctor.
 export
 yonedaEqv : Profunctor p => p a b <=> Yoneda p a b
 yonedaEqv = MkEquivalence propure proextract
@@ -75,6 +82,12 @@ Cosieve p f => Cosieve (Yoneda p) f where
   cosieve = cosieve . proextract
 
 
+------------------------------------------------------------------------------
+-- Coyoneda
+------------------------------------------------------------------------------
+
+
+||| The free profunctor given a data constructor with two type parameters.
 public export
 data Coyoneda : (p : Type -> Type -> Type) -> Type -> Type -> Type where
   MkCoyoneda : (a -> x) -> (y -> b) -> p x y -> Coyoneda p a b
@@ -100,6 +113,7 @@ ProfunctorComonad Coyoneda where
   proextract (MkCoyoneda l r p) = dimap l r p
   produplicate = MkCoyoneda id id
 
+||| A witness that `Coyoneda p` and `p` are equivalent when `p` is a profunctor.
 export
 coyonedaEqv : Profunctor p => p a b <=> Coyoneda p a b
 coyonedaEqv = MkEquivalence propure proextract

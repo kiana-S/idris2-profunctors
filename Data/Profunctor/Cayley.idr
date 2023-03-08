@@ -11,6 +11,7 @@ import Data.Profunctor.Sieve
 
 -- NOTE: This may be better as a type synonym instead of a new type?
 
+||| A profunctor lifted into a functor.
 public export
 record Cayley {0 k1,k2,k3 : Type} f (p : k1 -> k2 -> k3) a b where
   constructor MkCayley
