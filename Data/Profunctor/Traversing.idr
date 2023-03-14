@@ -9,6 +9,11 @@ import Data.Profunctor
 %default total
 
 
+------------------------------------------------------------------------------
+-- Default implementation machinery
+------------------------------------------------------------------------------
+
+
 [FoldablePair] Foldable (Pair c) where
   foldr op init (_, x) = x `op` init
   foldl op init (_, x) = init `op` x
@@ -61,6 +66,11 @@ Foldable (Baz t b) where
 Traversable (Baz t b) where
   traverse f bz = map (\m => MkBaz (runBazaar m)) $ runBaz bz @{Compose} $ \x => sell <$> f x
 
+export
+wanderDef : Profunctor p => (forall f. Traversable f => p a b -> p (f a) (f b))
+                         -> (forall f. Applicative f => (a -> f b) -> s -> f t) -> p a b -> p s t
+wanderDef tr f = dimap (\s => MkBaz $ \afb => f afb s) sold . tr
+
 
 ------------------------------------------------------------------------------
 -- Traversing interface
@@ -82,7 +92,7 @@ interface (Strong p, Choice p) => Traversing p where
   traverse' = wander traverse
 
   wander : (forall f. Applicative f => (a -> f b) -> s -> f t) -> p a b -> p s t
-  wander f = dimap (\s => MkBaz $ \afb => f afb s) sold . traverse'
+  wander = wanderDef traverse'
 
 
 ------------------------------------------------------------------------------
