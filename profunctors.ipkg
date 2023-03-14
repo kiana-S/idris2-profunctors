@@ -1,6 +1,8 @@
 package profunctors
 version = 1.1.1
 
+brief = "Profunctors for Idris2"
+
 authors = "Kiana Sheibani"
 license = "MIT"
 
