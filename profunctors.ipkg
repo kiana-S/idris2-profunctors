@@ -1,5 +1,5 @@
 package profunctors
-version = 1.1.1
+version = 1.1.2
 
 brief = "Profunctors for Idris2"
 
