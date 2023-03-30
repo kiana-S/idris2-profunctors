@@ -66,7 +66,7 @@ Foldable (Baz t b) where
 Traversable (Baz t b) where
   traverse f bz = map (\m => MkBaz (runBazaar m)) $ runBaz bz @{Compose} $ \x => sell <$> f x
 
-export
+public export
 wanderDef : Profunctor p => (forall f. Traversable f => p a b -> p (f a) (f b))
                          -> (forall f. Applicative f => (a -> f b) -> s -> f t) -> p a b -> p s t
 wanderDef tr f = dimap (\s => MkBaz $ \afb => f afb s) sold . tr
@@ -100,29 +100,29 @@ interface (Strong p, Choice p) => Traversing p where
 ------------------------------------------------------------------------------
 
 
-export
+public export
 Traversing Morphism where
   traverse' (Mor f) = Mor (map f)
   wander f (Mor p) = Mor (runIdentity . (f $ Id . p))
 
 ||| A named implementation of `Traversing` for function types.
 ||| Use this to avoid having to use a type wrapper like `Morphism`.
-export
+public export
 [Function] Traversing (\a,b => a -> b) using Strong.Function where
   traverse' = map
   wander f g = runIdentity . (f $ Id . g)
 
-export
+public export
 Applicative f => Traversing (Kleislimorphism f) where
   traverse' (Kleisli p) = Kleisli (traverse p)
   wander f (Kleisli p) = Kleisli (f p)
 
-export
+public export
 Applicative f => Traversing (Star f) where
   traverse' (MkStar p) = MkStar (traverse p)
   wander f (MkStar p) = MkStar (f p)
 
-export
+public export
 Monoid r => Traversing (Forget r) where
   traverse' (MkForget k) = MkForget (foldMap k)
   wander f (MkForget k) = MkForget (runConst . f (MkConst . k))
@@ -140,45 +140,45 @@ record CofreeTraversing p a b where
   constructor MkCFT
   runCFT : forall f. Traversable f => p (f a) (f b)
 
-export
+public export
 Profunctor p => Profunctor (CofreeTraversing p) where
   lmap f (MkCFT p) = MkCFT (lmap (map f) p)
   rmap g (MkCFT p) = MkCFT (rmap (map g) p)
   dimap f g (MkCFT p) = MkCFT (dimap (map f) (map g) p)
 
-export
+public export
 Profunctor p => GenStrong Pair (CofreeTraversing p) where
   strongr (MkCFT p) = MkCFT (p @{Compose @{%search} @{TraversablePair}})
   strongl = dimap swap' swap' . strongr {p=CofreeTraversing p}
 
-export
+public export
 Profunctor p => GenStrong Either (CofreeTraversing p) where
   strongr (MkCFT p) = MkCFT (p @{Compose {f=Either c}})
   strongl = dimap swap' swap' . strongr {p=CofreeTraversing p}
 
-export
+public export
 Profunctor p => Traversing (CofreeTraversing p) where
   traverse' (MkCFT p) = MkCFT (p @{Compose})
 
-export
+public export
 ProfunctorFunctor CofreeTraversing where
   promap f (MkCFT p) = MkCFT (f p)
 
-export
+public export
 ProfunctorComonad CofreeTraversing where
   proextract (MkCFT p) = dimap Id runIdentity $ p @{TraversableIdentity}
   produplicate (MkCFT p) = MkCFT $ MkCFT $ p @{Compose}
 
-export
+public export
 Profunctor p => Functor (CofreeTraversing p a) where
   map = rmap
 
 
-export
+public export
 cofreeTraversing : Traversing p => p :-> q -> p :-> CofreeTraversing q
 cofreeTraversing f p = MkCFT $ f $ traverse' p
 
-export
+public export
 uncofreeTraversing : Profunctor q => p :-> CofreeTraversing q -> p :-> q
 uncofreeTraversing f p = proextract $ f p
 
@@ -194,40 +194,40 @@ public export
 data FreeTraversing : (p : Type -> Type -> Type) -> Type -> Type -> Type where
   MkFT : Traversable f => (f y -> b) -> p x y -> (a -> f x) -> FreeTraversing p a b
 
-export
+public export
 Profunctor (FreeTraversing p) where
   lmap f (MkFT l m r) = MkFT l m (r . f)
   rmap f (MkFT l m r) = MkFT (f . l) m r
   dimap f g (MkFT l m r) = MkFT (g . l) m (r . f)
 
-export
+public export
 GenStrong Pair (FreeTraversing p) where
   strongr (MkFT l m r) = MkFT @{Compose @{TraversablePair}} (map l) m (map r)
   strongl = dimap swap' swap' . strongr {p=FreeTraversing p}
 
-export
+public export
 GenStrong Either (FreeTraversing p) where
   strongr (MkFT l m r) = MkFT @{Compose {t=Either c}} (map l) m (map r)
   strongl = dimap swap' swap' . strongr {p=FreeTraversing p}
 
-export
+public export
 Traversing (FreeTraversing p) where
   traverse' (MkFT l m r) = MkFT @{Compose} (map l) m (map r)
 
-export
+public export
 ProfunctorFunctor FreeTraversing where
   promap f (MkFT l m r) = MkFT l (f m) r
 
-export
+public export
 ProfunctorMonad FreeTraversing where
   propure p = MkFT @{TraversableIdentity} runIdentity p Id
   projoin (MkFT l' (MkFT l m r) r') = MkFT @{Compose} (l' . map l) m (map r . r')
 
 
-export
+public export
 freeTraversing : Traversing q => p :-> q -> FreeTraversing p :-> q
 freeTraversing fn (MkFT {f} l m r) = dimap r l (traverse' {f} (fn m))
 
-export
+public export
 unfreeTraversing : FreeTraversing p :-> q -> p :-> q
 unfreeTraversing f p = f (MkFT @{TraversableIdentity} runIdentity p Id)

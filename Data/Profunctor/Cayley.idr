@@ -18,50 +18,50 @@ record Cayley {0 k1,k2,k3 : Type} f (p : k1 -> k2 -> k3) a b where
   runCayley : f (p a b)
 
 
-export
+public export
 Functor f => Profunctor p => Profunctor (Cayley f p) where
   dimap f g (MkCayley p) = MkCayley (dimap f g <$> p)
   lmap f (MkCayley p) = MkCayley (lmap f <$> p)
   rmap g (MkCayley p) = MkCayley (rmap g <$> p)
 
-export
+public export
 Functor f => ProfunctorFunctor (Cayley f) where
   promap f (MkCayley p) = MkCayley (map f p)
 
-export
+public export
 Monad m => ProfunctorMonad (Cayley m) where
   propure = MkCayley . pure
   projoin (MkCayley p) = MkCayley $ p >>= runCayley
 
-export
+public export
 Functor f => GenStrong ten p => GenStrong ten (Cayley f p) where
   strongl (MkCayley p) = MkCayley (strongl {ten} <$> p)
   strongr (MkCayley p) = MkCayley (strongr {ten} <$> p)
 
-export
+public export
 Functor f => GenCostrong ten p => GenCostrong ten (Cayley f p) where
   costrongl (MkCayley p) = MkCayley (costrongl {ten} <$> p)
   costrongr (MkCayley p) = MkCayley (costrongr {ten} <$> p)
 
-export
+public export
 Functor f => Closed p => Closed (Cayley f p) where
   closed (MkCayley p) = MkCayley (closed <$> p)
 
-export
+public export
 Functor f => Traversing p => Traversing (Cayley f p) where
   traverse' (MkCayley p) = MkCayley (traverse' <$> p)
   wander f (MkCayley p) = MkCayley (wander f <$> p)
 
-export
+public export
 Functor f => Mapping p => Mapping (Cayley f p) where
   map' (MkCayley p) = MkCayley (map' <$> p)
   roam f (MkCayley p) = MkCayley (roam f <$> p)
 
-export
+public export
 Functor g => Sieve p f => Sieve (Cayley g p) (g . f) using Functor.Compose where
   sieve (MkCayley p) x = ($ x) . sieve <$> p
 
 
-export
+public export
 mapCayley : (forall x. f x -> g x) -> Cayley f p :-> Cayley g p
 mapCayley f (MkCayley p) = MkCayley (f p)

@@ -80,11 +80,11 @@ right : Choice p => p a b -> p (Either c a) (Either c b)
 right = strongr {ten=Either}
 
 
-export
+public export
 uncurry' : Strong p => p a (b -> c) -> p (a, b) c
 uncurry' = rmap (uncurry id) . first
 
-export
+public export
 strong : Strong p => (a -> b -> c) -> p a b -> p a c
 strong f = dimap dup (uncurry $ flip f) . first
 
@@ -94,55 +94,55 @@ strong f = dimap dup (uncurry $ flip f) . first
 ------------------------------------------------------------------------------
 
 
-export
+public export
 Bifunctor ten => GenStrong ten Morphism where
   strongl (Mor f) = Mor (mapFst f)
   strongr (Mor f) = Mor (mapSnd f)
 
 ||| A named implementation of `GenStrong` for function types.
 ||| Use this to avoid having to use a type wrapper like `Morphism`.
-export
+public export
 [Function] Bifunctor ten => GenStrong ten (\a,b => a -> b)
     using Profunctor.Function where
   strongl = mapFst
   strongr = mapSnd
 
-export
+public export
 Functor f => GenStrong Pair (Kleislimorphism f) where
   strongl (Kleisli f) = Kleisli $ \(a,c) => (,c) <$> f a
   strongr (Kleisli f) = Kleisli $ \(c,a) => (c,) <$> f a
 
-export
+public export
 Applicative f => GenStrong Either (Kleislimorphism f) where
   strongl (Kleisli f) = Kleisli $ either (map Left . f) (pure . Right)
   strongr (Kleisli f) = Kleisli $ either (pure . Left) (map Right . f)
 
-export
+public export
 Functor f => GenStrong Pair (Star f) where
   strongl (MkStar f) = MkStar $ \(a,c) => (,c) <$> f a
   strongr (MkStar f) = MkStar $ \(c,a) => (c,) <$> f a
 
-export
+public export
 Applicative f => GenStrong Either (Star f) where
   strongl (MkStar f) = MkStar $ either (map Left . f) (pure . Right)
   strongr (MkStar f) = MkStar $ either (pure . Left) (map Right . f)
 
-export
+public export
 GenStrong Either Tagged where
   strongl (Tag x) = Tag (Left x)
   strongr (Tag x) = Tag (Right x)
 
-export
+public export
 GenStrong Pair (Forget r) where
   strongl (MkForget k) = MkForget (k . fst)
   strongr (MkForget k) = MkForget (k . snd)
 
-export
+public export
 Monoid r => GenStrong Either (Forget r) where
   strongl (MkForget k) = MkForget (either k (const neutral))
   strongr (MkForget k) = MkForget (either (const neutral) k)
 
-export
+public export
 GenStrong Either (Coforget r) where
   strongl (MkCoforget k) = MkCoforget (Left . k)
   strongr (MkCoforget k) = MkCoforget (Right . k)
@@ -160,26 +160,26 @@ record GenTambara (ten, p : Type -> Type -> Type) a b where
   constructor MkTambara
   runTambara : forall c. p (a `ten` c) (b `ten` c)
 
-export
+public export
 Bifunctor ten => Profunctor p => Profunctor (GenTambara ten p) where
   dimap f g (MkTambara p) = MkTambara $ dimap (mapFst f) (mapFst g) p
 
-export
+public export
 ProfunctorFunctor (GenTambara ten) where
   promap f (MkTambara p) = MkTambara (f p)
 
-export
+public export
 Tensor ten i => ProfunctorComonad (GenTambara ten) where
   proextract (MkTambara p) = dimap unitr.rightToLeft unitr.leftToRight p
   produplicate (MkTambara p) = MkTambara $ MkTambara $ dimap assocr assocl p
 
-export
+public export
 Associative ten => Symmetric ten => Profunctor p => GenStrong ten (GenTambara ten p) where
   strongl (MkTambara p) = MkTambara $ dimap assocr assocl p
   strongr (MkTambara p) = MkTambara $ dimap (assocr . mapFst swap')
                                             (mapFst swap' . assocl) p
 
-export
+public export
 Bifunctor ten => Profunctor p => Functor (GenTambara ten p a) where
   map = rmap
 
@@ -201,11 +201,11 @@ TambaraSum : (p : Type -> Type -> Type) -> Type -> Type -> Type
 TambaraSum = GenTambara Either
 
 
-export
+public export
 tambara : GenStrong ten p => p :-> q -> p :-> GenTambara ten q
 tambara @{gs} f x = MkTambara $ f $ strongl @{gs} x
 
-export
+public export
 untambara : Tensor ten i => Profunctor q => p :-> GenTambara ten q -> p :-> q
 untambara f x = dimap unitr.rightToLeft unitr.leftToRight $ runTambara $ f x
 
@@ -222,17 +222,17 @@ data GenPastro : (ten, p : Type -> Type -> Type) -> Type -> Type -> Type where
   MkPastro : (y `ten` z -> b) -> p x y -> (a -> x `ten` z) -> GenPastro ten p a b
 
 
-export
+public export
 Profunctor (GenPastro ten p) where
   dimap f g (MkPastro l m r) = MkPastro (g . l) m (r . f)
   lmap f (MkPastro l m r) = MkPastro l m (r . f)
   rmap g (MkPastro l m r) = MkPastro (g . l) m r
 
-export
+public export
 ProfunctorFunctor (GenPastro ten) where
   promap f (MkPastro l m r) = MkPastro l (f m) r
 
-export
+public export
 (Tensor ten i, Symmetric ten) => ProfunctorMonad (GenPastro ten) where
   propure x = MkPastro unitr.leftToRight x unitr.rightToLeft
   projoin (MkPastro {x=x',y=y',z=z'} l' (MkPastro {x,y,z} l m r) r') = MkPastro ll m rr
@@ -243,12 +243,12 @@ export
       rr : a -> x `ten` (z' `ten` z)
       rr = mapSnd swap' . assocr . mapFst r . r'
 
-export
+public export
 ProfunctorAdjunction (GenPastro ten) (GenTambara ten) where
   prounit x = MkTambara (MkPastro id x id)
   procounit (MkPastro l (MkTambara x) r) = dimap r l x
 
-export
+public export
 (Associative ten, Symmetric ten) => GenStrong ten (GenPastro ten p) where
   strongl (MkPastro {x,y,z} l m r) = MkPastro l' m r'
     where
@@ -281,11 +281,11 @@ PastroSum : (p : Type -> Type -> Type) -> Type -> Type -> Type
 PastroSum = GenPastro Either
 
 
-export
+public export
 pastro : GenStrong ten q => p :-> q -> GenPastro ten p :-> q
 pastro @{gs} f (MkPastro l m r) = dimap r l (strongl @{gs} (f m))
 
-export
+public export
 unpastro : Tensor ten i => GenPastro ten p :-> q -> p :-> q
 unpastro f x = f (MkPastro unitr.leftToRight x unitr.rightToLeft)
 

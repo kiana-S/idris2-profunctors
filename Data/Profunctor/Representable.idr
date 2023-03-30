@@ -21,7 +21,7 @@ interface (Sieve p f, Strong p) => Representable p f | p where
   tabulate : (a -> f b) -> p a b
 
 
-||| A profunctor `p` is representable if it is isomorphic to `Costar f` for some `f`.
+||| A profunctor `p` is corepresentable if it is isomorphic to `Costar f` for some `f`.
 public export
 interface Cosieve p f => Corepresentable p f | p where
   cotabulate : (f a -> b) -> p a b

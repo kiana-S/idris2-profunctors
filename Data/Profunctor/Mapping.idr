@@ -38,14 +38,14 @@ interface (Traversing p, Closed p) => Mapping p where
 ------------------------------------------------------------------------------
 
 
-export
+public export
 Mapping Morphism where
   map' (Mor f) = Mor (map f)
   roam f (Mor x) = Mor (f x)
 
 ||| A named implementation of `Mapping` for function types.
 ||| Use this to avoid having to use a type wrapper like `Morphism`.
-export
+public export
 [Function] Mapping (\a,b => a -> b)
     using Traversing.Function Closed.Function where
   map' = map
@@ -64,31 +64,31 @@ record CofreeMapping p a b where
   constructor MkCFM
   runCFM : forall f. Functor f => p (f a) (f b)
 
-export
+public export
 Profunctor p => Profunctor (CofreeMapping p) where
   lmap f (MkCFM p) = MkCFM (lmap (map f) p)
   rmap f (MkCFM p) = MkCFM (rmap (map f) p)
   dimap f g (MkCFM p) = MkCFM (dimap (map f) (map g) p)
 
-export
+public export
 Profunctor p => Functor (CofreeMapping p a) where
   map = rmap
 
-export
+public export
 ProfunctorFunctor CofreeMapping where
   promap f (MkCFM p) = MkCFM (f p)
 
-export
+public export
 ProfunctorComonad CofreeMapping where
   proextract (MkCFM p) = dimap Id runIdentity p
   produplicate (MkCFM p) = MkCFM $ MkCFM $ p @{Compose}
 
-export
+public export
 Symmetric ten => Profunctor p => GenStrong ten (CofreeMapping p) where
   strongr (MkCFM p) = MkCFM (p @{Compose {g=ten c} @{%search} @{MkFunctor mapSnd}})
   strongl (MkCFM p) = MkCFM (p @{Compose {g=(`ten` c)} @{%search} @{MkFunctor mapFst}})
 
-export
+public export
 Profunctor p => Closed (CofreeMapping p) where
   closed (MkCFM p) = MkCFM (p @{Compose {g = \b => x -> b} @{%search} @{MkFunctor (.)}})
 
@@ -99,12 +99,12 @@ roamCofree f (MkCFM p) = MkCFM $ dimap (map (flip f)) (map ($ id)) $
     functor : Functor (\a => (a -> b) -> t)
     functor = MkFunctor (\f => (. (. f)))
 
-export
+public export
 Profunctor p => Traversing (CofreeMapping p) where
   traverse' (MkCFM p) = MkCFM (p @{Compose})
   wander f = roamCofree $ (runIdentity .) . f . (Id .)
 
-export
+public export
 Profunctor p => Mapping (CofreeMapping p) where
   map' (MkCFM p) = MkCFM (p @{Compose})
   roam = roamCofree
@@ -119,36 +119,36 @@ public export
 data FreeMapping : (p : Type -> Type -> Type) -> Type -> Type -> Type where
   MkFM : Functor f => (f y -> b) -> p x y -> (a -> f x) -> FreeMapping p a b
 
-export
+public export
 Profunctor (FreeMapping p) where
   lmap f (MkFM l m r) = MkFM l m (r . f)
   rmap f (MkFM l m r) = MkFM (f . l) m r
   dimap f g (MkFM l m r) = MkFM (g . l) m (r . f)
 
-export
+public export
 ProfunctorFunctor FreeMapping where
   promap f (MkFM l m r) = MkFM l (f m) r
 
-export
+public export
 ProfunctorMonad FreeMapping where
   propure p = MkFM runIdentity p Id
   projoin (MkFM l' (MkFM l m r) r') = MkFM @{Compose} (l' . map l) m (map r . r')
 
-export
+public export
 Functor (FreeMapping p a) where
   map = rmap
 
-export
+public export
 GenStrong Pair (FreeMapping p) where
   strongr (MkFM l m r) = MkFM @{Compose} (map l) m (map r)
   strongl = dimap swap' swap' . strongr {p=FreeMapping p}
 
-export
+public export
 GenStrong Either (FreeMapping p) where
   strongr (MkFM l m r) = MkFM @{Compose} (map l) m (map r)
   strongl = dimap swap' swap' . strongr {p=FreeMapping p}
 
-export
+public export
 Closed (FreeMapping p) where
   closed (MkFM l m r) = dimap Mor applyMor $ MkFM @{Compose} (map l) m (map r)
 
@@ -158,12 +158,12 @@ roamFree f (MkFM l m r) = MkFM @{Compose @{functor}} (($ id) . map @{functor} l)
     functor : Functor (\a => (a -> b) -> t)
     functor = MkFunctor (\f => (. (. f)))
 
-export
+public export
 Traversing (FreeMapping p) where
   traverse' (MkFM l m r) = MkFM @{Compose} (map l) m (map r)
   wander f = roamFree $ (runIdentity .) . f . (Id .)
 
-export
+public export
 Mapping (FreeMapping p) where
   map' (MkFM l m r) = MkFM @{Compose} (map l) m (map r)
   roam = roamFree

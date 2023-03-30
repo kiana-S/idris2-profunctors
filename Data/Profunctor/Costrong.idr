@@ -84,17 +84,17 @@ unright = costrongr {ten=Either}
 ------------------------------------------------------------------------------
 
 
-export
+public export
 GenCostrong Pair Tagged where
   costrongl (Tag (x,_)) = Tag x
   costrongr (Tag (_,x)) = Tag x
 
-export
+public export
 GenCostrong Either (Forget r) where
   costrongl (MkForget k) = MkForget (k . Left)
   costrongr (MkForget k) = MkForget (k . Right)
 
-export
+public export
 GenCostrong Pair (Coforget r) where
   costrongl (MkCoforget k) = MkCoforget (fst . k)
   costrongr (MkCoforget k) = MkCoforget (snd . k)
@@ -111,27 +111,27 @@ public export
 data GenCotambara : (ten, p : Type -> Type -> Type) -> Type -> Type -> Type where
   MkCotambara : GenCostrong ten q => q :-> p -> q a b -> GenCotambara ten p a b
 
-export
+public export
 Profunctor (GenCotambara ten p) where
   lmap f (MkCotambara n p) = MkCotambara n (lmap f p)
   rmap f (MkCotambara n p) = MkCotambara n (rmap f p)
   dimap f g (MkCotambara n p) = MkCotambara n (dimap f g p)
 
-export
+public export
 ProfunctorFunctor (GenCotambara ten) where
   promap f (MkCotambara n p) = MkCotambara (f . n) p
 
-export
+public export
 GenCostrong ten (GenCotambara ten p) where
   costrongl (MkCotambara @{costr} n p) = MkCotambara n (costrongl @{costr} p)
   costrongr (MkCotambara @{costr} n p) = MkCotambara n (costrongr @{costr} p)
 
-export
+public export
 ProfunctorComonad (GenCotambara ten) where
   proextract (MkCotambara n p) = n p
   produplicate (MkCotambara n p) = MkCotambara id (MkCotambara n p)
 
-export
+public export
 Functor (GenCotambara ten p a) where
   map = rmap
 
@@ -153,11 +153,11 @@ CotambaraSum : (p : Type -> Type -> Type) -> Type -> Type -> Type
 CotambaraSum = GenCotambara Either
 
 
-export
+public export
 cotambara : GenCostrong ten p => p :-> q -> p :-> GenCotambara ten q
 cotambara f = MkCotambara f
 
-export
+public export
 uncotambara : Tensor ten i => Profunctor q => p :-> GenCotambara ten q -> p :-> q
 uncotambara f p = proextract (f p)
 
@@ -174,27 +174,27 @@ record GenCopastro (ten, p : Type -> Type -> Type) a b where
   constructor MkCopastro
   runCopastro : forall q. GenCostrong ten q => p :-> q -> q a b
 
-export
+public export
 Profunctor (GenCopastro ten p) where
   dimap f g (MkCopastro h) = MkCopastro $ \n => dimap f g (h n)
   lmap f (MkCopastro h) = MkCopastro $ \n => lmap f (h n)
   rmap f (MkCopastro h) = MkCopastro $ \n => rmap f (h n)
 
-export
+public export
 ProfunctorFunctor (GenCopastro ten) where
   promap f (MkCopastro h) = MkCopastro $ \n => h (n . f)
 
-export
+public export
 ProfunctorMonad (GenCopastro ten) where
   propure p = MkCopastro ($ p)
   projoin p = MkCopastro $ \x => runCopastro p (\y => runCopastro y x)
 
-export
+public export
 GenCostrong ten (GenCopastro ten p) where
   costrongl (MkCopastro h) = MkCopastro $ \n => costrongl {ten} (h n)
   costrongr (MkCopastro h) = MkCopastro $ \n => costrongr {ten} (h n)
 
-export
+public export
 ProfunctorAdjunction (GenCopastro ten) (GenCotambara ten) where
   prounit p = MkCotambara id (propure {t=GenCopastro ten} p)
   procounit (MkCopastro h) = proextract (h id)
@@ -217,10 +217,10 @@ CopastroSum : (p : Type -> Type -> Type) -> Type -> Type -> Type
 CopastroSum = GenCopastro Either
 
 
-export
+public export
 copastro : GenCostrong ten q => p :-> q -> GenCopastro ten p :-> q
 copastro f (MkCopastro h) = h f
 
-export
+public export
 uncopastro : Tensor ten i => GenCopastro ten p :-> q -> p :-> q
 uncopastro f x = f (MkCopastro ($ x))

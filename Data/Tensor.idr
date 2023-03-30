@@ -58,16 +58,16 @@ interface Associative ten => Tensor ten i | ten where
 ------------------------------------------------------------------------------
 
 
-export
+public export
 Associative Pair where
   assocl (x,(y,z)) = ((x,y),z)
   assocr ((x,y),z) = (x,(y,z))
 
-export
+public export
 Symmetric Pair where
   swap' = swap
 
-export
+public export
 Tensor Pair () where
   unitl = MkEquivalence snd ((),)
   unitr = MkEquivalence fst (,())
@@ -78,7 +78,7 @@ Tensor Pair () where
 ------------------------------------------------------------------------------
 
 
-export
+public export
 Associative Either where
   assocl (Left x) = Left (Left x)
   assocl (Right (Left x)) = Left (Right x)
@@ -88,11 +88,11 @@ Associative Either where
   assocr (Left (Right x)) = Right (Left x)
   assocr (Right x) = Right (Right x)
 
-export
+public export
 Symmetric Either where
   swap' = either Right Left
 
-export
+public export
 Tensor Either Void where
   unitl = MkEquivalence (either absurd id) Right
   unitr = MkEquivalence (either id absurd) Left

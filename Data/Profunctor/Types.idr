@@ -59,7 +59,7 @@ p :-> q = forall a, b. p a b -> q a b
 ------------------------------------------------------------------------------
 
 
-export
+public export
 Profunctor Morphism where
   dimap f g (Mor h) = Mor (g . h . f)
   lmap f (Mor g) = Mor (g . f)
@@ -68,13 +68,13 @@ Profunctor Morphism where
 namespace Profunctor
   ||| A named implementation of `Profunctor` for function types.
   ||| Use this to avoid having to use a type wrapper like `Morphism`.
-  export
+  public export
   [Function] Profunctor (\a,b => a -> b) where
     dimap f g h = g . h . f
     lmap = flip (.)
     rmap = (.)
 
-export
+public export
 Functor f => Profunctor (Kleislimorphism f) where
   dimap f g (Kleisli h) = Kleisli (map g . h . f)
   lmap f (Kleisli g) = Kleisli (g . f)
@@ -95,27 +95,27 @@ record Star {0 k : Type} (f : k -> Type) a (b : k) where
   constructor MkStar
   applyStar : a -> f b
 
-export
+public export
 Functor f => Functor (Star f a) where
   map f (MkStar g) = MkStar (map f . g)
 
-export
+public export
 Applicative f => Applicative (Star f a) where
   pure = MkStar . const . pure
   MkStar f <*> MkStar g = MkStar (\x => f x <*> g x)
 
-export
+public export
 Monad f => Monad (Star f a) where
   MkStar f >>= g = MkStar $ \x => do
     a <- f x
     applyStar (g a) x
 
-export
+public export
 Contravariant f => Contravariant (Star f a) where
   contramap f (MkStar g) = MkStar (contramap f . g)
 
 
-export
+public export
 Functor f => Profunctor (Star f) where
   dimap f g (MkStar h) = MkStar (map g . h . f)
   lmap f (MkStar g) = MkStar (g . f)
@@ -128,20 +128,20 @@ record Costar {0 k : Type} (f : k -> Type) (a : k) b where
   constructor MkCostar
   applyCostar : f a -> b
 
-export
+public export
 Functor (Costar f a) where
   map f (MkCostar g) = MkCostar (f . g)
 
-export
+public export
 Applicative (Costar f a) where
   pure = MkCostar . const
   MkCostar f <*> MkCostar g = MkCostar (\x => f x (g x))
 
-export
+public export
 Monad (Costar f a) where
   MkCostar f >>= g = MkCostar (\x => applyCostar (g (f x)) x)
 
-export
+public export
 Functor f => Profunctor (Costar f) where
   dimap f g (MkCostar h) = MkCostar (g . h . map f)
   lmap f (MkCostar g) = MkCostar (g . map f)
@@ -160,21 +160,21 @@ public export
 retag : Tagged a c -> Tagged b c
 retag (Tag x) = Tag x
 
-export
+public export
 Functor (Tagged a) where
   map f (Tag x) = Tag (f x)
 
-export
+public export
 Applicative (Tagged a) where
   pure = Tag
   Tag f <*> Tag x = Tag (f x)
 
-export
+public export
 Monad (Tagged a) where
   join = runTagged
   Tag x >>= f = f x
 
-export
+public export
 Foldable (Tagged a) where
   foldr f x (Tag y) = f y x
   foldl f x (Tag y) = f x y
@@ -183,11 +183,11 @@ Foldable (Tagged a) where
   toList (Tag x) = [x]
   foldMap f (Tag x) = f x
 
-export
+public export
 Traversable (Tagged a) where
   traverse f (Tag x) = map Tag (f x)
 
-export
+public export
 Profunctor Tagged where
   dimap _ f (Tag x) = Tag (f x)
   lmap = const retag
@@ -204,25 +204,25 @@ public export
 reforget : Forget r a b -> Forget r a c
 reforget (MkForget k) = MkForget k
 
-export
+public export
 Functor (Forget r a) where
   map _ = reforget
 
-export
+public export
 Contravariant (Forget {k=Type} r a) where
   contramap _ = reforget
 
-export
+public export
 Monoid r => Applicative (Forget r a) where
   pure _ = MkForget (const neutral)
   MkForget f <*> MkForget g = MkForget (f <+> g)
 
-export
+public export
 Monoid r => Monad (Forget {k=Type} r a) where
   join = reforget
   (>>=) = reforget .: const
 
-export
+public export
 Foldable (Forget r a) where
   foldr _ x _ = x
   foldl _ x _ = x
@@ -231,11 +231,11 @@ Foldable (Forget r a) where
   toList _ = []
   foldMap _ _ = neutral
 
-export
+public export
 Traversable (Forget r a) where
   traverse _ = pure . reforget
 
-export
+public export
 Profunctor (Forget r) where
   dimap f _ (MkForget k) = MkForget (k . f)
   lmap f (MkForget k) = MkForget (k . f)
@@ -252,21 +252,27 @@ public export
 recoforget : Coforget r a c -> Coforget r b c
 recoforget (MkCoforget k) = MkCoforget k
 
-export
+public export
 Functor (Coforget r a) where
   map f (MkCoforget k) = MkCoforget (f . k)
 
-export
+public export
+Bifunctor (Coforget r) where
+  bimap _ f (MkCoforget k) = MkCoforget (f . k)
+  mapFst _ = recoforget
+  mapSnd = map
+
+public export
 Applicative (Coforget r a) where
   pure = MkCoforget . const
   MkCoforget f <*> MkCoforget g = MkCoforget (\r => f r (g r))
 
-export
+public export
 Monad (Coforget r a) where
   MkCoforget k >>= f = MkCoforget (\r => runCoforget (f $ k r) r)
 
-export
-Profunctor (Coforget f) where
+public export
+Profunctor (Coforget r) where
   dimap _ f (MkCoforget k) = MkCoforget (f . k)
   lmap _ = recoforget
   rmap = map

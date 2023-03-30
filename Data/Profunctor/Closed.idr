@@ -30,22 +30,22 @@ interface Profunctor p => Closed p where
 ------------------------------------------------------------------------------
 
 
-export
+public export
 Closed Morphism where
   closed (Mor f) = Mor (f .)
 
 ||| A named implementation of `Closed` for function types.
 ||| Use this to avoid having to use a type wrapper like `Morphism`.
-export
+public export
 [Function] Closed (\a,b => a -> b) using Profunctor.Function where
   closed = (.)
 
-export
+public export
 Functor f => Closed (Costar f) where
   closed (MkCostar p) = MkCostar $ \f,x => p (map ($ x) f)
 
 
-export
+public export
 curry' : Closed p => p (a, b) c -> p a (b -> c)
 curry' = lmap (,) . closed
 
@@ -71,40 +71,40 @@ record Closure p a b where
   runClosure : forall x. p (x -> a) (x -> b)
 
 
-export
+public export
 Profunctor p => Profunctor (Closure p) where
   dimap f g (MkClosure p) = MkClosure $ dimap (f .) (g .) p
   lmap f (MkClosure p) = MkClosure $ lmap (f .) p
   rmap f (MkClosure p) = MkClosure $ rmap (f .) p
 
-export
+public export
 ProfunctorFunctor Closure where
   promap f (MkClosure p) = MkClosure (f p)
 
-export
+public export
 ProfunctorComonad Closure where
   proextract (MkClosure p) = dimap const ($ ()) p
   produplicate (MkClosure p) = MkClosure $ MkClosure $ dimap uncurry curry p
 
-export
+public export
 Strong p => GenStrong Pair (Closure p) where
   strongl (MkClosure p) = MkClosure $ dimap hither yon $ first p
   strongr (MkClosure p) = MkClosure $ dimap hither yon $ second p
 
-export
+public export
 Profunctor p => Closed (Closure p) where
   closed p = runClosure $ produplicate p
 
-export
+public export
 Profunctor p => Functor (Closure p a) where
   map = rmap
 
 
-export
+public export
 close : Closed p => p :-> q -> p :-> Closure q
 close f p = MkClosure $ f $ closed p
 
-export
+public export
 unclose : Profunctor q => p :-> Closure q -> p :-> q
 unclose f p = dimap const ($ ()) $ runClosure $ f p
 
@@ -121,17 +121,17 @@ data Environment : (p : Type -> Type -> Type) -> Type -> Type -> Type where
   MkEnv : ((z -> y) -> b) -> p x y -> (a -> z -> x) -> Environment p a b
 
 
-export
+public export
 Profunctor (Environment p) where
   dimap f g (MkEnv l m r) = MkEnv (g . l) m (r . f)
   lmap f (MkEnv l m r) = MkEnv l m (r . f)
   rmap g (MkEnv l m r) = MkEnv (g . l) m r
 
-export
+public export
 ProfunctorFunctor Environment where
   promap f (MkEnv l m r) = MkEnv l (f m) r
 
-export
+public export
 ProfunctorMonad Environment where
   propure p = MkEnv ($ ()) p const
   projoin (MkEnv {x=x',y=y',z=z'} l' (MkEnv {x,y,z} l m r) r') = MkEnv (ll . curry) m rr
@@ -141,12 +141,12 @@ ProfunctorMonad Environment where
       rr : a -> (z', z) -> x
       rr a (b, c) = r (r' a b) c
 
-export
+public export
 ProfunctorAdjunction Environment Closure where
   prounit p = MkClosure (MkEnv id p id)
   procounit (MkEnv l (MkClosure x) r) = dimap r l x
 
-export
+public export
 Closed (Environment p) where
   closed {x=x'} (MkEnv {x,y,z} l m r) = MkEnv l' m r'
     where
@@ -155,15 +155,15 @@ Closed (Environment p) where
       r' : (x' -> a) -> (z, x') -> x
       r' f (z,x) = r (f x) z
 
-export
+public export
 Profunctor p => Functor (Environment p a) where
   map = rmap
 
 
-export
+public export
 environment : Closed q => p :-> q -> Environment p :-> q
 environment f (MkEnv l m r) = dimap r l $ closed (f m)
 
-export
+public export
 unenvironment : Environment p :-> q -> p :-> q
 unenvironment f p = f (MkEnv ($ ()) p const)

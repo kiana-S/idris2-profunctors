@@ -30,44 +30,44 @@ interface (Profunctor p, Functor f) => Cosieve p f | p where
 ------------------------------------------------------------------------------
 
 
-export
+public export
 Sieve Morphism Identity where
   sieve (Mor f) = Id . f
 
 ||| A named implementation of `Sieve` for function types.
 ||| Use this to avoid having to use a type wrapper like `Morphism`.
-export
+public export
 [Function] Sieve (\a,b => a -> b) Identity using Profunctor.Function where
   sieve = (Id .)
 
-export
+public export
 Functor f => Sieve (Kleislimorphism f) f where
   sieve = applyKleisli
 
-export
+public export
 Functor f => Sieve (Star f) f where
   sieve = applyStar
 
-export
+public export
 Sieve (Forget r) (Const r) where
   sieve (MkForget k) = MkConst . k
 
 
-export
+public export
 Cosieve Morphism Identity where
   cosieve (Mor f) = f . runIdentity
 
 namespace Cosieve
   ||| A named implementation of `Cosieve` for function types.
   ||| Use this to avoid having to use a type wrapper like `Morphism`.
-  export
+  public export
   [Function] Cosieve (\a,b => a -> b) Identity using Profunctor.Function where
     cosieve = (. runIdentity)
 
-export
+public export
 Functor f => Cosieve (Costar f) f where
   cosieve = applyCostar
 
-export
+public export
 Cosieve (Coforget r) (Const r) where
   cosieve (MkCoforget k) = k . runConst
