@@ -9,6 +9,9 @@ import Data.Profunctor.Traversing
 %default total
 
 
+functor : Functor (\a => (a -> b) -> t)
+functor = MkFunctor (\f => (. (. f)))
+
 ------------------------------------------------------------------------------
 -- Mapping interface
 ------------------------------------------------------------------------------
@@ -28,9 +31,6 @@ interface (Traversing p, Closed p) => Mapping p where
 
   roam : ((a -> b) -> s -> t) -> p a b -> p s t
   roam f = dimap (flip f) ($ id) . map' @{%search} @{functor}
-    where
-      functor : Functor (\a => (a -> b) -> t)
-      functor = MkFunctor (\f => (. (. f)))
 
 
 ------------------------------------------------------------------------------
@@ -95,14 +95,11 @@ Profunctor p => Closed (CofreeMapping p) where
 roamCofree : Profunctor p => ((a -> b) -> s -> t) -> CofreeMapping p a b -> CofreeMapping p s t
 roamCofree f (MkCFM p) = MkCFM $ dimap (map (flip f)) (map ($ id)) $
       p @{Compose @{%search} @{functor}}
-  where
-    functor : Functor (\a => (a -> b) -> t)
-    functor = MkFunctor (\f => (. (. f)))
 
 public export
 Profunctor p => Traversing (CofreeMapping p) where
   traverse' (MkCFM p) = MkCFM (p @{Compose})
-  wander f = roamCofree $ (runIdentity .) . f . (Id .)
+  wander f = roamCofree $ f @{MkApplicative @{MkFunctor id} id id}
 
 public export
 Profunctor p => Mapping (CofreeMapping p) where
@@ -154,14 +151,11 @@ Closed (FreeMapping p) where
 
 roamFree : ((a -> b) -> s -> t) -> FreeMapping p a b -> FreeMapping p s t
 roamFree f (MkFM l m r) = MkFM @{Compose @{functor}} (($ id) . map @{functor} l) m (map @{functor} r . flip f)
-  where
-    functor : Functor (\a => (a -> b) -> t)
-    functor = MkFunctor (\f => (. (. f)))
 
 public export
 Traversing (FreeMapping p) where
   traverse' (MkFM l m r) = MkFM @{Compose} (map l) m (map r)
-  wander f = roamFree $ (runIdentity .) . f . (Id .)
+  wander f = roamFree $ f @{MkApplicative @{MkFunctor id} id id}
 
 public export
 Mapping (FreeMapping p) where
