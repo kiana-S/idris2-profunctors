@@ -276,3 +276,37 @@ Profunctor (Coforget r) where
   dimap _ f (MkCoforget k) = MkCoforget (f . k)
   lmap _ = recoforget
   rmap = map
+
+
+------------------------------------------------------------------------------
+-- Identity functor
+------------------------------------------------------------------------------
+
+-- A few convenience definitions for use in other modules.
+
+public export
+[FunctorId] Functor Prelude.id where
+  map = id
+
+public export
+[ApplicativeId] Applicative Prelude.id using FunctorId where
+  pure = id
+  (<*>) = id
+
+public export
+[MonadId] Monad Prelude.id using ApplicativeId where
+  join = id
+  (>>=) = flip id
+
+public export
+[FoldableId] Foldable Prelude.id where
+  foldr = flip
+  foldl = id
+  null _ = False
+  foldlM = id
+  toList = pure
+  foldMap = id
+
+public export
+[TraversableId] Traversable Prelude.id using FunctorId FoldableId where
+  traverse = id

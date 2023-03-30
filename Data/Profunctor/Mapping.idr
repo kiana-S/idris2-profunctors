@@ -1,6 +1,5 @@
 module Data.Profunctor.Mapping
 
-import Control.Monad.Identity
 import Data.Morphisms
 import Data.Tensor
 import Data.Profunctor
@@ -23,7 +22,7 @@ functor = MkFunctor (\f => (. (. f)))
 ||| * `map' . lmap f = lmap (map f) . map'`
 ||| * `map' . rmap f = rmap (map f) . map'`
 ||| * `map' . map' = map' @{Compose}`
-||| * `dimap Identity runIdentity . map' = id`
+||| * `dimap Id runIdentity . map' = id`
 public export
 interface (Traversing p, Closed p) => Mapping p where
   map' : Functor f => p a b -> p (f a) (f b)
@@ -80,7 +79,7 @@ ProfunctorFunctor CofreeMapping where
 
 public export
 ProfunctorComonad CofreeMapping where
-  proextract (MkCFM p) = dimap Id runIdentity p
+  proextract (MkCFM p) = p @{FunctorId}
   produplicate (MkCFM p) = MkCFM $ MkCFM $ p @{Compose}
 
 public export
@@ -99,7 +98,7 @@ roamCofree f (MkCFM p) = MkCFM $ dimap (map (flip f)) (map ($ id)) $
 public export
 Profunctor p => Traversing (CofreeMapping p) where
   traverse' (MkCFM p) = MkCFM (p @{Compose})
-  wander f = roamCofree $ f @{MkApplicative @{MkFunctor id} id id}
+  wander f = roamCofree $ f @{ApplicativeId}
 
 public export
 Profunctor p => Mapping (CofreeMapping p) where
@@ -128,7 +127,7 @@ ProfunctorFunctor FreeMapping where
 
 public export
 ProfunctorMonad FreeMapping where
-  propure p = MkFM runIdentity p Id
+  propure p = MkFM @{FunctorId} id p id
   projoin (MkFM l' (MkFM l m r) r') = MkFM @{Compose} (l' . map l) m (map r . r')
 
 public export
@@ -155,7 +154,7 @@ roamFree f (MkFM l m r) = MkFM @{Compose @{functor}} (($ id) . map @{functor} l)
 public export
 Traversing (FreeMapping p) where
   traverse' (MkFM l m r) = MkFM @{Compose} (map l) m (map r)
-  wander f = roamFree $ f @{MkApplicative @{MkFunctor id} id id}
+  wander f = roamFree $ f @{ApplicativeId}
 
 public export
 Mapping (FreeMapping p) where

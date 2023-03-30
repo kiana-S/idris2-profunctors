@@ -37,8 +37,8 @@ Sieve Morphism Identity where
 ||| A named implementation of `Sieve` for function types.
 ||| Use this to avoid having to use a type wrapper like `Morphism`.
 public export
-[Function] Sieve (\a,b => a -> b) Identity using Profunctor.Function where
-  sieve = (Id .)
+[Function] Sieve (\a,b => a -> b) Prelude.id using Profunctor.Function FunctorId where
+  sieve = id
 
 public export
 Functor f => Sieve (Kleislimorphism f) f where
@@ -61,8 +61,8 @@ namespace Cosieve
   ||| A named implementation of `Cosieve` for function types.
   ||| Use this to avoid having to use a type wrapper like `Morphism`.
   public export
-  [Function] Cosieve (\a,b => a -> b) Identity using Profunctor.Function where
-    cosieve = (. runIdentity)
+  [Function] Cosieve (\a,b => a -> b) Prelude.id using Profunctor.Function FunctorId where
+    cosieve = id
 
 public export
 Functor f => Cosieve (Costar f) f where

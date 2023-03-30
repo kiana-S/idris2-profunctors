@@ -50,9 +50,9 @@ Representable Morphism Identity where
 ||| A named implementation of `Representable` for function types.
 ||| Use this to avoid having to use a type wrapper like `Morphism`.
 export
-[Function] Representable (\a,b => a -> b) Identity
+[Function] Representable (\a,b => a -> b) Prelude.id
     using Sieve.Function Strong.Function where
-  tabulate = (runIdentity .)
+  tabulate = id
 
 export
 Functor f => Representable (Kleislimorphism f) f where
@@ -74,8 +74,8 @@ namespace Corepresentable
   ||| A named implementation of `Corepresentable` for function types.
   ||| Use this to avoid having to use a type wrapper like `Morphism`.
   export
-  [Function] Corepresentable (\a,b => a -> b) Identity using Cosieve.Function where
-    cotabulate = (. Id)
+  [Function] Corepresentable (\a,b => a -> b) Prelude.id using Cosieve.Function where
+    cotabulate = id
 
 export
 Functor f => Corepresentable (Costar f) f where

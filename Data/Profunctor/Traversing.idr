@@ -1,7 +1,6 @@
 module Data.Profunctor.Traversing
 
 import Control.Applicative.Const
-import Control.Monad.Identity
 import Data.Morphisms
 import Data.Tensor
 import Data.Profunctor
@@ -21,14 +20,6 @@ import Data.Profunctor
 
 [TraversablePair] Traversable (Pair c) using FoldablePair where
   traverse f (l, r) = (l,) <$> f r
-
-[FoldableIdentity] Foldable Identity where
-  foldr f i (Id x) = f x i
-  foldl f i (Id x) = f i x
-  null _ = False
-
-[TraversableIdentity] Traversable Identity using FoldableIdentity where
-  traverse f (Id x) = map Id (f x)
 
 
 record Bazaar a b t where
@@ -54,7 +45,7 @@ Functor (Baz t b) where
 
 
 sold : Baz t a a -> t
-sold m = runIdentity (runBaz m Id)
+sold m = runBaz @{ApplicativeId} m id
 
 Foldable (Baz t b) where
   foldr f i bz = runBaz bz @{appEndo} f i
@@ -103,14 +94,14 @@ interface (Strong p, Choice p) => Traversing p where
 public export
 Traversing Morphism where
   traverse' (Mor f) = Mor (map f)
-  wander f (Mor p) = Mor (runIdentity . (f $ Id . p))
+  wander f (Mor p) = Mor (f @{ApplicativeId} p)
 
 ||| A named implementation of `Traversing` for function types.
 ||| Use this to avoid having to use a type wrapper like `Morphism`.
 public export
 [Function] Traversing (\a,b => a -> b) using Strong.Function where
   traverse' = map
-  wander f g = runIdentity . (f $ Id . g)
+  wander f = f @{ApplicativeId}
 
 public export
 Applicative f => Traversing (Kleislimorphism f) where
@@ -166,7 +157,7 @@ ProfunctorFunctor CofreeTraversing where
 
 public export
 ProfunctorComonad CofreeTraversing where
-  proextract (MkCFT p) = dimap Id runIdentity $ p @{TraversableIdentity}
+  proextract (MkCFT p) = p @{TraversableId}
   produplicate (MkCFT p) = MkCFT $ MkCFT $ p @{Compose}
 
 public export
@@ -220,7 +211,7 @@ ProfunctorFunctor FreeTraversing where
 
 public export
 ProfunctorMonad FreeTraversing where
-  propure p = MkFT @{TraversableIdentity} runIdentity p Id
+  propure p = MkFT @{TraversableId} id p id
   projoin (MkFT l' (MkFT l m r) r') = MkFT @{Compose} (l' . map l) m (map r . r')
 
 
@@ -230,4 +221,4 @@ freeTraversing fn (MkFT {f} l m r) = dimap r l (traverse' {f} (fn m))
 
 public export
 unfreeTraversing : FreeTraversing p :-> q -> p :-> q
-unfreeTraversing f p = f (MkFT @{TraversableIdentity} runIdentity p Id)
+unfreeTraversing f p = f (MkFT @{TraversableId} id p id)
